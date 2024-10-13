@@ -1,0 +1,59 @@
+name: 버그 리포트
+description: 발견한 버그를 보고하기 위한 템플릿입니다.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        버그를 보고해 주셔서 감사합니다. 가능한 한 자세히 설명해 주시면 더 빠르게 해결할 수 있습니다.
+  - type: input
+    id: version
+    attributes:
+      label: 버전
+      description: 어떤 버전에서 이 버그가 발생했나요?
+      placeholder: ex)) v1.0.2
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 무슨 일이 일어났나요?
+      description: 발생한 버그에 대해 자세히 설명해주세요.
+      placeholder: 버그 설명을 여기에 작성해주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 재현 방법
+      description: 이 버그를 재현하기 위한 단계를 설명해주세요.
+      placeholder: |
+        1. '...'로 이동
+        2. '....'를 클릭
+        3. '....'까지 스크롤 다운
+        4. 에러 발생
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 예상 동작
+      description: 원래 어떻게 동작해야 하나요?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 관련 로그 출력
+      description: 관련된 로그 출력이 있다면 복사/붙여넣기 해주세요.
+      render: shell
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 확인 사항
+      description: 이슈를 제출하기 전에 다음 사항을 확인해주세요.
+      options:
+        - label: 이미 존재하는 이슈가 아닌지 확인했습니다.
+          required: true
+        - label: 이 버그가 최신 버전에서도 발생하는지 확인했습니다.
+          required: true

@@ -1,0 +1,10 @@
+__pycache__/
+.idea/
+
+.env
+.coverage
+
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
