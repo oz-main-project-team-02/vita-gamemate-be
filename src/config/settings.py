@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import pymysql
@@ -10,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-@67tlej#l=ql#!-o0m&9+x%k+nz0e2s-a0+&jdwjmlx1m1@nx%")
 
 DEBUG = True
 
@@ -26,6 +27,8 @@ INSTALLED_APPS = [
     # third
     "rest_framework",
     "drf_spectacular",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     # own
     "users.apps.UsersConfig",
     "wallets.apps.WalletsConfig",
@@ -85,7 +88,9 @@ TIME_ZONE = "Asia/Seoul"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
+
+AUTH_USER_MODEL = "users.User"
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
@@ -110,6 +115,14 @@ SERVER_DOMAIN = "0.0.0.0:443"
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
 }
 
 SPECTACULAR_SETTINGS = {
@@ -117,12 +130,26 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": '게임 매칭 서비스 "Vita(비타)"의 API 입니다.',
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    # "SECURITY_DEFINITIONS": {
+    #     "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header", "description": "Bearer token을 입력하세요"}
+    # },
+    "SECURITY": [
+        {
+            "name": "Authorization",
+            "type": "http",
+            "scheme": "Bearer",
+            "bearerFormat": "Opaque",
+        },
+    ],
+    # "SWAGGER_UI_SETTINGS": {
+    #     "persistAuthorization": True,
+    # },  # 인증 정보 유지
     # "SWAGGER_UI_SETTINGS": {
     #     "deepLinking": True,
     #     "persistAuthorization": True,
     #     "displayOperationId": True,
     # },
-    # "SWAGGER_UI_DIST": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest",
+    "SWAGGER_UI_DIST": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest",
 }
 
 DATABASES = {
@@ -144,6 +171,7 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CHARSET": "utf-8",
             "DECODE_RESPONSES": True,
+            "PASSWORD": os.getenv("REDIS_PASSWORD"),
         },
     }
 }
@@ -165,9 +193,25 @@ LOGGING = {
     },
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+GOOGLE_CONFIG = {
+    # key
+    "CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID"),
+    "CLIENT_SECRET": os.getenv("GOOGLE_CLIENT_SECRET"),
+    # uri
+    "PROFILE_URI": "https://www.googleapis.com/oauth2/v3/userinfo",
+    "GENDER_URI": "https://www.googleapis.com/oauth2/user",
+    "LOGIN_URI": "https://accounts.google.com/o/oauth2/v2/auth",
+    "TOKEN_URI": "https://oauth2.googleapis.com/token",
+    "REDIRECT_URI": os.getenv("GOOGLE_REDIRECT_URI"),
+    "SCOPE": "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/user.gender.read",
+    # type
+    "GRANT_TYPE": "authorization_code",
+    "CONTENT_TYPE": "application/x-www-form-urlencoded",
+    # host
+    "HOST": "oauth2.googleapis.com",
+}
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")

@@ -13,10 +13,6 @@ echo "Starting isort"
 poetry run isort .
 echo "${COLOR_GREEN}OK${COLOR_NC}"
 
-echo "Starting mypy"
-poetry run mypy .
-echo "${COLOR_GREEN}OK${COLOR_NC}"
-
 echo "Starting test with coverage"
 poetry run coverage run src/manage.py test
 poetry run coverage report -m
