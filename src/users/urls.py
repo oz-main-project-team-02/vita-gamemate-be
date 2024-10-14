@@ -1,5 +1,8 @@
 from django.http import HttpRequest, HttpResponse
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from users.views import oauth_view, token_view
 
 
 # 임시 뷰 함수 입니다.
@@ -9,13 +12,13 @@ def dummy_view(request: HttpRequest, *args: tuple[str, ...], **kwargs: dict[str,
 
 urlpatterns = [
     # 사용자 로그인 회원가입
-    path("google/login/", dummy_view, name="google-login"),
-    path("google/login/callback/", dummy_view, name="google-login-callback"),
+    path("google/login/", oauth_view.GoogleLoginAPIView.as_view(), name="google-login"),
+    path("google/login/callback/", oauth_view.GoogleLoginCallbackAPIView.as_view(), name="google-login-callback"),
     path("kakao/login/", dummy_view, name="kakao-login"),
     path("kakao/login/callback/", dummy_view, name="kakao-login-callback"),
-    path("logout/", dummy_view, name="auth-logout"),
+    path("auth/logout/", oauth_view.LogoutAPIView.as_view(), name="auth-logout"),
     # access token 발금
-    path("auth/accesstoken/", dummy_view, name="auth-accesstoken"),
+    path("auth/accesstoken/", token_view.CustomTokenRefreshView.as_view(), name="auth-accesstoken"),
     # 사용자 프로필
     path("<str:user_id>/profile/", dummy_view, name="user-profile"),
     # 게임 메이트 프로필 편집
