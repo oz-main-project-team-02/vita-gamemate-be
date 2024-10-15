@@ -15,7 +15,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-@67tlej#l=ql#!-o0m&9+x%k+n
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com", "localhost:5173"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -25,11 +25,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # third
+    "corsheaders",
     "rest_framework",
     "drf_spectacular",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     # own
+    "corsheaders.middleware.CorsMiddleware",
     "users.apps.UsersConfig",
     "wallets.apps.WalletsConfig",
     "reviews.apps.ReviewsConfig",
@@ -48,6 +50,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+
+TEST_DISCOVER_PATTERN = "test*.py"
 
 TEMPLATES = [
     {
@@ -101,6 +105,29 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
+
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
+
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost",  # localhost 추가
     "http://localhost",  # HTTP로도 접근하는 경우
@@ -108,6 +135,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1",  # HTTP 127.0.0.1 추가
     "https://43.202.32.218/",
     "http://43.202.32.218/",
+    "http://ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
+    "https://ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
 ]
 
 SERVER_PROTOCOL = "https"

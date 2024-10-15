@@ -1,11 +1,9 @@
-import uuid
-
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from users.managers import UserManager  # type: ignore
+from users.managers import UserManager
 
 
 class SocialProvider(models.TextChoices):
@@ -47,7 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    objects = UserManager()  # type: ignore
+    objects = UserManager()
 
     def clean(self) -> None:
         super().clean()
@@ -58,4 +56,4 @@ class User(AbstractBaseUser, PermissionsMixin):
             raise ValidationError({"gender": "Invalid gender"})
 
     def __str__(self) -> str:
-        return self.email
+        return self.nickname
