@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     # own
-    "corsheaders.middleware.CorsMiddleware",
     "users.apps.UsersConfig",
     "wallets.apps.WalletsConfig",
     "reviews.apps.ReviewsConfig",
@@ -40,6 +39,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
