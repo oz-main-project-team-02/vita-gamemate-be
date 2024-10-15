@@ -15,7 +15,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-@67tlej#l=ql#!-o0m&9+x%k+n
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com", "localhost:5173"]
+ALLOWED_HOSTS = [
+    "ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
+    "localhost:5173",
+    "127.0.0.1",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
