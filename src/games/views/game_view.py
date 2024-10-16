@@ -1,9 +1,10 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from games.models.game_model import Game
 from games.serializers.game_serializers import GameSerializer
-from rest_framework import status
 
 
 class GameListView(APIView):
@@ -43,17 +44,17 @@ class GameListView(APIView):
         ],
     )
     def get(self, request, *args, **kwargs):
-        limit = request.query_params.get('limit')
-        sort = request.query_params.get('sort')
+        limit = request.query_params.get("limit")
+        sort = request.query_params.get("sort")
         games = Game.objects.all()
 
-        if sort == 'nav':
-            games = games.order_by('name')  # 이름순으로 정렬 (네비게이션 용)
-        elif sort == 'best': # 인기순 정렬 (임시로 'updated_at'으로 처리, 실제로는 인기 데이터를 기준으로)
-            games = games.order_by('-updated_at')
+        if sort == "nav":
+            games = games.order_by("name")  # 이름순으로 정렬 (네비게이션 용)
+        elif sort == "best":  # 인기순 정렬 (임시로 'updated_at'으로 처리, 실제로는 인기 데이터를 기준으로)
+            games = games.order_by("-updated_at")
 
         if limit is not None:
-            games = games[:int(limit)]
+            games = games[: int(limit)]
 
         serializer = GameSerializer(games, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
