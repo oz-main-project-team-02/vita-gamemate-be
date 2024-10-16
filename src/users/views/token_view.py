@@ -18,6 +18,7 @@ class CustomTokenRefreshView(TokenRefreshView):
         methods=["POST"],
         summary="토큰 재발급",
         description="refresh_token을 이용한 access_token 재발급 API입니다. Body에서 값을 보내주세요.",
+        request=True,
         responses={
             status.HTTP_200_OK: OpenApiTypes.OBJECT,
             status.HTTP_401_UNAUTHORIZED: OpenApiTypes.OBJECT,

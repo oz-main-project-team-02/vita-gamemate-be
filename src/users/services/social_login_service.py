@@ -8,7 +8,7 @@ class SocialLoginService:
     login_uri: str
 
     def social_login(self, context: dict = None) -> str:
-        if context["scope"]:
+        if context is not None:
             return self.basic_url() + f"&scope={context["scope"]}"
 
         return self.basic_url()
@@ -44,8 +44,12 @@ class SocialLoginCallbackService:
             data=token_request_data,
             headers={"Content-type": self.content_type},
         )
+
+        if token_response.status_code != 200:
+            raise ValueError(token_response.text)
+
         token_json = token_response.json()
-        auth_headers = {"Authorization": f"Bearer {token_json["access_token"]}"}
+        auth_headers = {"Authorization": f"Bearer {token_json.get('access_token')}"}
 
         return auth_headers
 

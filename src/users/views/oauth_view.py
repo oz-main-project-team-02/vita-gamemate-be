@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from config.settings import GOOGLE_CONFIG
+from config.settings import GOOGLE_CONFIG, KAKAO_CONFIG
 from users.models import User
 from users.services.social_login_service import (
     SocialLoginCallbackService,
@@ -49,7 +49,7 @@ class GoogleLoginCallbackAPIView(APIView):
     glc.redirect_uri = GOOGLE_CONFIG["REDIRECT_URI"]
 
     @extend_schema(
-        methods=["GET"],
+        methods=["POST"],
         summary="구글 회원가입 / 로그인",
         description="자동으로 로그인 및 회원가입이되어 응답을 반환하는 API 입니다. google login url에서 자동으로 리다이렉트 되는 api입니다. swagger로 테스트 못합니다.",
         responses={
@@ -72,8 +72,8 @@ class GoogleLoginCallbackAPIView(APIView):
             )
         ],
     )
-    def get(self, request):
-        token_request_data = self.glc.create_token_request_data(code=request.query_params.get("code", None))
+    def post(self, request):
+        token_request_data = self.glc.create_token_request_data(code=request.data.get("code", None))
         auth_headers = self.glc.get_auth_headers(token_request_data=token_request_data)
         user_data = self.glc.get_user_info(auth_headers=auth_headers)
 
@@ -142,3 +142,94 @@ class LogoutAPIView(APIView):
 
         except Exception as e:
             return Response({"Unexpected Error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class KakaoLoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    kl = SocialLoginService()
+
+    kl.login_uri = KAKAO_CONFIG["LOGIN_URI"]
+    kl.client_id = KAKAO_CONFIG["REST_API_KEY"]
+    kl.redirect_uri = KAKAO_CONFIG["REDIRECT_URI"]
+
+    @extend_schema(
+        methods=["GET"],
+        summary="카카오 로그인 이동",
+        description="swagger로는 작동하지 않습니다. 직접 url을 입력해보세요.",
+    )
+    def get(self, request):
+        return redirect(self.kl.social_login())
+
+
+class KakaoLoginCallbackAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    klc = SocialLoginCallbackService()
+
+    klc.client_id = KAKAO_CONFIG["REST_API_KEY"]
+    klc.client_secret = KAKAO_CONFIG["CLIENT_SECRET_KEY"]
+    klc.token_uri = KAKAO_CONFIG["TOKEN_URI"]
+    klc.profile_uri = KAKAO_CONFIG["PROFILE_URI"]
+    klc.redirect_uri = KAKAO_CONFIG["REDIRECT_URI"]
+
+    @extend_schema(
+        methods=["POST"],
+        summary="카카오 회원가입 / 로그인",
+        description="자동으로 로그인 및 회원가입이되어 응답을 반환하는 API 입니다. google login url에서 자동으로 리다이렉트 되는 api입니다. swagger로 테스트 못합니다.",
+        responses={
+            status.HTTP_200_OK: OpenApiTypes.OBJECT,
+        },
+        examples=[
+            OpenApiExample(
+                "Successful Login",
+                value={
+                    "id": 1,
+                    "email": "asdf@kakao.com",
+                    "nickname": "asdf",
+                    "social_provider": "kakao",
+                    "gender": None,
+                    "access_token": "asdfsadf",
+                    "refresh_token": "asdfasdf",
+                },
+                response_only=True,
+                status_codes=[200],
+            )
+        ],
+    )
+    def post(self, request):
+        token_request_data = self.klc.create_token_request_data(code=request.data.get("code", None))
+        try:
+            auth_headers = self.klc.get_auth_headers(token_request_data=token_request_data)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_data = self.klc.get_user_info(auth_headers=auth_headers)
+
+        profile_data = user_data["kakao_account"]["profile"]
+        nickname = profile_data["nickname"]
+
+        email = user_data["kakao_account"]["email"]
+        social_provider = "kakao"
+
+        try:
+            user = User.objects.get(email=email, social_provider=social_provider)
+
+        except ObjectDoesNotExist:
+            user = User.objects.create_user(email=email, nickname=nickname, social_provider=social_provider)
+
+        token = TokenObtainPairSerializer.get_token(user)
+        access_token = str(token.access_token)
+        refresh_token = str(token)
+
+        data = {
+            "id": user.id,
+            "email": user.email,
+            "nickname": user.nickname,
+            "social_provider": social_provider,
+            "gender": user.gender,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
