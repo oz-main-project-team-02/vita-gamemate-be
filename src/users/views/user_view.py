@@ -1,5 +1,5 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiExample, extend_schema
+from drf_spectacular.utils import OpenApiExample, extend_schema, OpenApiResponse
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -26,33 +26,35 @@ class UserProfileView(APIView):
     @extend_schema(
         methods=["GET"],
         summary="사용자 프로필 정보 가져오기",
-        description="gender, description, profile_image는 null값과 str을 반환 할 수 있음",
+        description="gender, description, profile_image, birth는 null값과 str을 반환할 수 있음",
         responses={
-            status.HTTP_200_OK: OpenApiTypes.OBJECT,
-            status.HTTP_404_NOT_FOUND: OpenApiTypes.OBJECT,
+            status.HTTP_200_OK: OpenApiResponse(
+                response=UserProfileSerializer,
+                examples=[
+                    OpenApiExample(
+                        name="사용자 정보 가져옴",
+                        value={
+                            "nickname": "fake30",
+                            "description": None,
+                            "gender": "female",
+                            "birthday": None,
+                            "profile_image": None,
+                        },
+                        response_only=True,
+                    ),
+                ],
+            ),
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response={"type": "object", "properties": {"message": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="사용자를 찾지 못함",
+                        value={"message": "사용자를 찾지 못했습니다."},
+                        response_only=True,
+                    ),
+                ],
+            ),
         },
-        examples=[
-            OpenApiExample(
-                "사용자 정보 가져옴",
-                value={
-                    "nickname": "fake30",
-                    "description": "null",
-                    "gender": "female",
-                    "birthday": "null",
-                    "profile_image": "null",
-                },
-                response_only=True,
-                status_codes=[200],
-            ),
-            OpenApiExample(
-                "사용자를 못찾음",
-                value={
-                    "message": "사용자를 찾지 못했습니다.",
-                },
-                response_only=True,
-                status_codes=[404],
-            ),
-        ],
     )
     def get(self, request, user_id):
         try:
@@ -67,34 +69,36 @@ class UserProfileView(APIView):
     @extend_schema(
         methods=["PATCH"],
         summary="사용자 프로필 정보 수정하기",
-        description="gender, description, profile_image는 null값과 str을 반환 할 수 있음",
+        description="gender, description, profile_image는 null값과 str을 반환할 수 있음",
         request=UserProfileSerializer,
         responses={
-            status.HTTP_200_OK: OpenApiTypes.OBJECT,
-            status.HTTP_404_NOT_FOUND: OpenApiTypes.OBJECT,
+            status.HTTP_200_OK: OpenApiResponse(
+                response=UserProfileSerializer,
+                examples=[
+                    OpenApiExample(
+                        name="성공",
+                        value={
+                            "nickname": "fake30",
+                            "description": None,
+                            "gender": "female",
+                            "birthday": None,
+                            "profile_image": None,
+                        },
+                        response_only=True,
+                    ),
+                ],
+            ),
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response={"type": "object", "properties": {"message": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="사용자를 찾지 못함",
+                        value={"message": "사용자를 찾지 못했습니다."},
+                        response_only=True,
+                    ),
+                ],
+            ),
         },
-        examples=[
-            OpenApiExample(
-                "사용자 정보 가져옴",
-                value={
-                    "nickname": "fake30",
-                    "description": "null",
-                    "gender": "female",
-                    "birthday": "null",
-                    "profile_image": "null",
-                },
-                response_only=True,
-                status_codes=[200],
-            ),
-            OpenApiExample(
-                "사용자를 못찾음",
-                value={
-                    "message": "사용자를 찾지 못했습니다.",
-                },
-                response_only=True,
-                status_codes=[404],
-            ),
-        ],
     )
     def patch(self, request, user_id):
         try:

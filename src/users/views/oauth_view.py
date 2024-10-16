@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenBlacklistSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from config.settings import GOOGLE_CONFIG, KAKAO_CONFIG
@@ -111,22 +111,31 @@ class LogoutAPIView(APIView):
         methods=["POST"],
         summary="로그아웃 (refresh_token 무효화)",
         description="refresh_token을 무효화 처리합니다.",
-        responses={
-            status.HTTP_200_OK: OpenApiTypes.OBJECT,
-            status.HTTP_400_BAD_REQUEST: OpenApiTypes.OBJECT,
+        request={
+            "application/json": {"type": "object", "properties": {"refresh_token": {"type": "string"}}, "required": ["refresh_token"]}
         },
-        examples=[
-            OpenApiExample(
-                "Successful Logged out",
-                value={"message": "성공적으로 로그아웃 되었습니다."},
-                status_codes=[200],
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                response={"type": "object", "properties": {"message": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="성공",
+                        value={"message": "성공적으로 로그아웃 되었습니다."},
+                        response_only=True,
+                    ),
+                ],
             ),
-            OpenApiExample(
-                "Not Found Refresh Token",
-                value={"error": "refresh token이 없습니다."},
-                status_codes=[400],
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response={"type": "object", "properties": {"error": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="토큰 누락",
+                        value={"error": "refresh token이 없습니다."},
+                        response_only=True,
+                    ),
+                ],
             ),
-        ],
+        },
     )
     def post(self, request):
         refresh_token = request.data.get("refresh_token")

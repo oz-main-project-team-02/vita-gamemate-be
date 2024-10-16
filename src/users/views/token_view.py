@@ -3,6 +3,7 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes,
     extend_schema,
+    OpenApiResponse,
 )
 from rest_framework import status
 from rest_framework.request import Request
@@ -18,42 +19,34 @@ class CustomTokenRefreshView(TokenRefreshView):
         methods=["POST"],
         summary="토큰 재발급",
         description="refresh_token을 이용한 access_token 재발급 API입니다. Body에서 값을 보내주세요.",
-        request=True,
+        request={"application/json": {"type": "object", "properties": {"refresh": {"type": "string"}}, "required": ["refresh"]}},
         responses={
-            status.HTTP_200_OK: OpenApiTypes.OBJECT,
-            status.HTTP_401_UNAUTHORIZED: OpenApiTypes.OBJECT,
+            status.HTTP_200_OK: OpenApiResponse(
+                response={"type": "object", "properties": {"access": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="유효한 토큰 응답",
+                        value={"access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."},
+                        response_only=True,
+                    ),
+                ],
+            ),
+            status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+                response={"type": "object", "properties": {"detail": {"type": "string"}, "code": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="블랙리스트된 토큰",
+                        value={"detail": "블랙리스트에 추가된 토큰입니다", "code": "token_not_valid"},
+                        response_only=True,
+                    ),
+                    OpenApiExample(
+                        name="유효하지 않은 토큰",
+                        value={"detail": "유효하지 않거나 만료된 토큰입니다", "code": "token_not_valid"},
+                        response_only=True,
+                    ),
+                ],
+            ),
         },
-        examples=[
-            OpenApiExample(
-                "Valid Token 응답 예제",
-                summary="유효한 토큰 응답 예제",
-                description="토큰이 유효하다면 access_token 발급",
-                value={
-                    "refresh": "asdfasfdsadf1",
-                },
-                status_codes=[status.HTTP_200_OK],
-            ),
-            OpenApiExample(
-                "Blacklist Token 응답 예제",
-                summary="블랙 리스트된 토큰 응답 예제",
-                description="로그아웃시 무효화 시킨 토큰입니다.",
-                value={
-                    "detail": "블랙리스트에 추가된 토큰입니다",
-                    "code": "token_not_valid",
-                },
-                status_codes=[status.HTTP_401_UNAUTHORIZED],
-            ),
-            OpenApiExample(
-                "Invalid Token 응답 예제",
-                summary="유효하지 않은 토큰 응답 예제",
-                description="유효하지 않은 토큰입니다.",
-                value={
-                    "detail": "유효하지 않거나 만료된 토큰입니다",
-                    "code": "token_not_valid",
-                },
-                status_codes=[status.HTTP_401_UNAUTHORIZED],
-            ),
-        ],
     )
     def post(self, request: Request) -> Response:
         return super().post(request)
