@@ -8,7 +8,7 @@ pyenv activate django_app
 cd src
 
 ## 데이터베이스 마이그레이션
-#poetry run python manage.py migrate --no-input
+poetry run python manage.py migrate --no-input
 poetry run python manage.py collectstatic --no-input
 
 # Gunicorn 실행
