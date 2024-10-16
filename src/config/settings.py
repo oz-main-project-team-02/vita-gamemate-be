@@ -18,6 +18,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
     "localhost:5173",
+    "127.0.0.1:5173",
     "127.0.0.1",
 ]
 
@@ -108,29 +109,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CORS_ALLOW_METHODS = (
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True  # 쿠키 등 credential 정보 허용
+CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
     "OPTIONS",
     "PATCH",
     "POST",
     "PUT",
-)
-
-CORS_ALLOW_HEADERS = (
+]
+CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
     "authorization",
     "content-type",
+    "cache-control",
     "dnt",
     "origin",
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-)
+]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost",  # localhost 추가
@@ -142,9 +145,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
     "https://ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
 ]
-
-SERVER_PROTOCOL = "https"
-SERVER_DOMAIN = "0.0.0.0:443"
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -212,16 +212,44 @@ CACHES = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
         },
     },
+    "formatters": {
+        "django.server": {
+            "()": "django.utils.log.ServerFormatter",
+            "format": "[{server_time}] {message}",
+            "style": "{",
+        },
+        "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+        },
+        "django.server": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "django.server",
+        },
+        "mail_admins": {"level": "ERROR", "filters": ["require_debug_false"], "class": "django.utils.log.AdminEmailHandler"},
+    },
     "loggers": {
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "DEBUG",
+        "django": {
+            "handlers": ["console", "mail_admins"],
+            "level": "INFO",
+        },
+        "django.server": {
+            "handlers": ["django.server"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }
@@ -242,6 +270,20 @@ GOOGLE_CONFIG = {
     "CONTENT_TYPE": "application/x-www-form-urlencoded",
     # host
     "HOST": "oauth2.googleapis.com",
+}
+
+KAKAO_CONFIG = {
+    # key
+    "REST_API_KEY": os.getenv("KAKAO_REST_API_KEY"),
+    "CLIENT_SECRET_KEY": os.getenv("KAKAO_CLIENT_SECRET_KEY"),
+    # uri
+    "LOGIN_URI": "https://kauth.kakao.com/oauth/authorize",
+    "TOKEN_URI": "https://kauth.kakao.com/oauth/token",
+    "PROFILE_URI": "https://kapi.kakao.com/v2/user/me",
+    "REDIRECT_URI": os.getenv("KAKAO_REDIRECT_URI"),
+    # type
+    "GRANT_TYPE": "authorization_code",
+    "CONTENT_TYPE": "application/x-www-form-urlencoded;charset=utf-8",
 }
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
