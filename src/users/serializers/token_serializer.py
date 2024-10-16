@@ -1,1 +1,5 @@
-#  palyload에 추가하고 싶은 유저 정보가 있다면 여기서 작업
+from rest_framework import serializers
+
+
+class TokenBlacklistSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
