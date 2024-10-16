@@ -1,15 +1,16 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
+from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenBlacklistSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from config.settings import GOOGLE_CONFIG, KAKAO_CONFIG
+from config.settings import GOOGLE_CONFIG, JWT_REFRESH_TOKEN_EXPIRE, KAKAO_CONFIG
 from users.models import User
 from users.services.social_login_service import (
     SocialLoginCallbackService,
@@ -31,7 +32,8 @@ class GoogleLoginAPIView(APIView):
     @extend_schema(
         methods=["GET"],
         summary="구글 로그인 이동",
-        description="swagger로는 작동하지 않습니다. 직접 url을 입력해보세요.",
+        description="백엔드 로컬 개발 테스트용 url입니다.",
+        tags=["oauth"],
     )
     def get(self, request):
         return redirect(self.gl.social_login(context={"scope": self.scope}))
@@ -50,8 +52,10 @@ class GoogleLoginCallbackAPIView(APIView):
 
     @extend_schema(
         methods=["POST"],
+        tags=["oauth"],
+        auth=[],
         summary="구글 회원가입 / 로그인",
-        description="자동으로 로그인 및 회원가입이되어 응답을 반환하는 API 입니다. google login url에서 자동으로 리다이렉트 되는 api입니다. swagger로 테스트 못합니다.",
+        description="자동으로 로그인 및 회원가입이되어 응답을 반환하는 API 입니다. google login url에서 자동으로 리다이렉트 되는 api입니다. refresh token은 쿠키에 저장됩니다.",
         responses={
             status.HTTP_200_OK: OpenApiTypes.OBJECT,
         },
@@ -65,7 +69,6 @@ class GoogleLoginCallbackAPIView(APIView):
                     "social_provider": "google",
                     "gender": None,
                     "access_token": "asdfsadf",
-                    "refresh_token": "asdfasdf",
                 },
                 response_only=True,
                 status_codes=[200],
@@ -101,56 +104,15 @@ class GoogleLoginCallbackAPIView(APIView):
             "refresh_token": refresh_token,
         }
 
-        return Response(data, status=status.HTTP_200_OK)
+        response = Response(data, status=status.HTTP_200_OK)
+        response.set_cookie(
+            "refresh_token",
+            refresh_token,
+            httponly=True,
+            expires=timezone.now() + JWT_REFRESH_TOKEN_EXPIRE,
+        )
 
-
-class LogoutAPIView(APIView):
-    permission_classes = [AllowAny]
-
-    @extend_schema(
-        methods=["POST"],
-        summary="로그아웃 (refresh_token 무효화)",
-        description="refresh_token을 무효화 처리합니다.",
-        request={
-            "application/json": {"type": "object", "properties": {"refresh_token": {"type": "string"}}, "required": ["refresh_token"]}
-        },
-        responses={
-            status.HTTP_200_OK: OpenApiResponse(
-                response={"type": "object", "properties": {"message": {"type": "string"}}},
-                examples=[
-                    OpenApiExample(
-                        name="성공",
-                        value={"message": "성공적으로 로그아웃 되었습니다."},
-                        response_only=True,
-                    ),
-                ],
-            ),
-            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-                response={"type": "object", "properties": {"error": {"type": "string"}}},
-                examples=[
-                    OpenApiExample(
-                        name="토큰 누락",
-                        value={"error": "refresh token이 없습니다."},
-                        response_only=True,
-                    ),
-                ],
-            ),
-        },
-    )
-    def post(self, request):
-        refresh_token = request.data.get("refresh_token")
-
-        if not refresh_token:
-            return Response({"error": "refresh token이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-
-            return Response({"message": "성공적으로 로그아웃 되었습니다."}, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            return Response({"Unexpected Error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return response
 
 
 class KakaoLoginAPIView(APIView):
@@ -165,7 +127,8 @@ class KakaoLoginAPIView(APIView):
     @extend_schema(
         methods=["GET"],
         summary="카카오 로그인 이동",
-        description="swagger로는 작동하지 않습니다. 직접 url을 입력해보세요.",
+        description="백엔드 로컬 개발 테스트용 url입니다.",
+        tags=["oauth"],
     )
     def get(self, request):
         return redirect(self.kl.social_login())
@@ -184,8 +147,10 @@ class KakaoLoginCallbackAPIView(APIView):
 
     @extend_schema(
         methods=["POST"],
+        tags=["oauth"],
+        auth=[],
         summary="카카오 회원가입 / 로그인",
-        description="자동으로 로그인 및 회원가입이되어 응답을 반환하는 API 입니다. google login url에서 자동으로 리다이렉트 되는 api입니다. swagger로 테스트 못합니다.",
+        description="자동으로 로그인 및 회원가입이되어 응답을 반환하는 API 입니다. google login url에서 자동으로 리다이렉트 되는 api입니다. refresh token은 쿠키에 저장됩니다.",
         responses={
             status.HTTP_200_OK: OpenApiTypes.OBJECT,
         },
@@ -199,7 +164,6 @@ class KakaoLoginCallbackAPIView(APIView):
                     "social_provider": "kakao",
                     "gender": None,
                     "access_token": "asdfsadf",
-                    "refresh_token": "asdfasdf",
                 },
                 response_only=True,
                 status_codes=[200],
@@ -208,6 +172,7 @@ class KakaoLoginCallbackAPIView(APIView):
     )
     def post(self, request):
         token_request_data = self.klc.create_token_request_data(code=request.data.get("code", None))
+
         try:
             auth_headers = self.klc.get_auth_headers(token_request_data=token_request_data)
         except ValueError as e:
@@ -238,7 +203,66 @@ class KakaoLoginCallbackAPIView(APIView):
             "social_provider": social_provider,
             "gender": user.gender,
             "access_token": access_token,
-            "refresh_token": refresh_token,
         }
 
-        return Response(data, status=status.HTTP_200_OK)
+        response = Response(data, status=status.HTTP_200_OK)
+        response.set_cookie(
+            "refresh_token",
+            refresh_token,
+            httponly=True,
+            expires=timezone.now() + JWT_REFRESH_TOKEN_EXPIRE,
+        )
+
+        return response
+
+
+class LogoutAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        methods=["GET"],
+        tags=["auth"],
+        summary="로그아웃 (refresh_token 무효화)",
+        description="refresh_token을 무효화 처리합니다. 쿠키 값에서 refresh token을 가져옵니다.",
+        auth=[],
+        request=None,
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                response={"type": "object", "properties": {"message": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="성공",
+                        value={"message": "성공적으로 로그아웃 되었습니다."},
+                        response_only=True,
+                    ),
+                ],
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response={"type": "object", "properties": {"error": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="토큰 누락",
+                        value={"error": "refresh token이 없습니다."},
+                        response_only=True,
+                    ),
+                ],
+            ),
+        },
+    )
+    def get(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if not refresh_token:
+            return Response({"error": "refresh token이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            response = Response({"message": "성공적으로 로그아웃 되었습니다."}, status=status.HTTP_200_OK)
+            response.delete_cookie("refresh_token")
+
+            return response
+
+        except Exception as e:
+            return Response({"Unexpected Error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

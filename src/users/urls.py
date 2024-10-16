@@ -20,7 +20,10 @@ urlpatterns = [
     # access token 발금
     path("auth/accesstoken/", token_view.CustomTokenRefreshView.as_view(), name="auth-accesstoken"),
     # 사용자 프로필
-    path("<int:user_id>/profile/", user_view.UserProfileView.as_view(), name="user-profile"),
+    path("<int:user_id>/profile/", user_view.UserProfileAPIView.as_view(), name="user-profile"),
+    # 내 프로필
+    path("profile/me/", user_view.UserMeAPIView.as_view(), name="user-me"),
+    # 게임 메이트 리스트
     # 게임 메이트 프로필 편집
     path("<str:user_id>/profile/gamemate/", dummy_view, name="gamemate-profile"),
     # 오늘의 게임 메이트 (몇명 보여줘야 할지는 요구사항에 적혀 있진 않음 일단 5명이고 랜덤으로, ?limit=5)

@@ -7,4 +7,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["nickname", "description", "gender", "birthday", "profile_image"]
+        exclude = [
+            "password",
+            "is_active",
+            "is_superuser",
+            "is_staff",
+            "last_login",
+            "updated_at",
+            "created_at",
+            "groups",
+            "user_permissions",
+        ]
+        extra_kwargs = {
+            "email": {"required": False},
+        }
