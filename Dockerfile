@@ -24,6 +24,10 @@ RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
     libmariadb-dev-compat \
     pkg-config \
+    nano \
+    lsof \
+    nginx \
+    certbot \
     && rm -rf /var/lib/apt/lists/*
 
 # 3. pyenv 설치 및 환경 설정
@@ -57,8 +61,14 @@ COPY . /app
 
 # 8. ENTRYPOINT 설정
 COPY scripts/entrypoint.sh /app/entrypoint.sh
+COPY resources/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY resources/cert/fullchain.pem /etc/letsencrypt/live/resdineconsulting.com/fullchain.pem
+COPY resources/cert/privkey.pem /etc/letsencrypt/live/resdineconsulting.com/privkey.pem
+
 RUN chmod +x /app/entrypoint.sh
-ENTRYPOINT ["/bin/bash", "/app/scripts/entrypoint.sh"]
+CMD ["/bin/bash", "/app/scripts/entrypoint.sh"]
+
+#RUN chmod +x /app/scripts/certbot.sh
 
 # 9. Gunicorn이 8000 포트에서 수신하도록 EXPOSE
 EXPOSE 8000
