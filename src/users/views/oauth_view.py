@@ -34,6 +34,7 @@ class GoogleLoginAPIView(APIView):
         summary="구글 로그인 이동",
         description="백엔드 로컬 개발 테스트용 url입니다.",
         tags=["oauth"],
+        auth=[],
     )
     def get(self, request):
         return redirect(self.gl.social_login(context={"scope": self.scope}))
@@ -132,6 +133,7 @@ class KakaoLoginAPIView(APIView):
         summary="카카오 로그인 이동",
         description="백엔드 로컬 개발 테스트용 url입니다.",
         tags=["oauth"],
+        auth=[],
     )
     def get(self, request):
         return redirect(self.kl.social_login())

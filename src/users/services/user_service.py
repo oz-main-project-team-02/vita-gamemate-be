@@ -1,8 +1,13 @@
 from rest_framework.exceptions import APIException
 from rest_framework_simplejwt.tokens import AccessToken
 
+from users.exceptions import (
+    InvalidAuthorizationHeader,
+    MissingAuthorizationHeader,
+    TokenMissing,
+    UserNotFound,
+)
 from users.models.user_model import User
-from users.exceptions import MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound
 
 
 class UserService:

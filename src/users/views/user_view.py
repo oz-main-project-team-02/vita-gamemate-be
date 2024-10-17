@@ -3,7 +3,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from users.exceptions import MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound
+from users.exceptions import (
+    InvalidAuthorizationHeader,
+    MissingAuthorizationHeader,
+    TokenMissing,
+    UserNotFound,
+)
 from users.models import User
 from users.serializers.user_serializer import UserProfileSerializer
 from users.services.user_service import UserService

@@ -10,6 +10,7 @@ from games.serializers.game_serializers import GameSerializer
 class GameListView(APIView):
     @extend_schema(
         methods=["GET"],
+        tags=["아직 개발중입니다. 사용을 멈춰주세요!"],
         summary="게임 목록 조회",
         description="게임 목록을 조회하는 API입니다. 쿼리 파라미터를 사용하여 정렬 및 제한 수를 설정할 수 있습니다.",
         parameters=[
