@@ -17,3 +17,15 @@ class UserManager(BaseUserManager):
             raise ValueError(str(e))
         user.save(using=self._db)
         return user
+
+    def get_user_by_id(self, user_id: int):
+        try:
+            return self.get(id=user_id)
+        except self.model.DoesNotExist:
+            return None
+
+    def get_user_by_email_and_social_provider(self, email: str, social_provider: str):
+        try:
+            return self.get(email=email, social_provider=social_provider)
+        except self.model.DoesNotExist:
+            return None

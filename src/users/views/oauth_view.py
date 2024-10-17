@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
 from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
@@ -11,6 +10,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from config.settings import GOOGLE_CONFIG, JWT_REFRESH_TOKEN_EXPIRE, KAKAO_CONFIG
+from users.exceptions import UserNotFound
 from users.models import User
 from users.services.social_login_service import (
     SocialLoginCallbackService,
@@ -34,6 +34,7 @@ class GoogleLoginAPIView(APIView):
         summary="구글 로그인 이동",
         description="백엔드 로컬 개발 테스트용 url입니다.",
         tags=["oauth"],
+        auth=[],
     )
     def get(self, request):
         return redirect(self.gl.social_login(context={"scope": self.scope}))
@@ -85,9 +86,12 @@ class GoogleLoginCallbackAPIView(APIView):
         social_provider = "google"
 
         try:
-            user = User.objects.get(email=email, social_provider=social_provider)
+            user = User.objects.get_user_by_email_and_social_provider(email=email, social_provider=social_provider)
 
-        except ObjectDoesNotExist:
+            if not user:
+                raise UserNotFound
+
+        except UserNotFound:
             user = User.objects.create_user(email=email, nickname=nickname, social_provider=social_provider)
 
         token = TokenObtainPairSerializer.get_token(user)
@@ -129,6 +133,7 @@ class KakaoLoginAPIView(APIView):
         summary="카카오 로그인 이동",
         description="백엔드 로컬 개발 테스트용 url입니다.",
         tags=["oauth"],
+        auth=[],
     )
     def get(self, request):
         return redirect(self.kl.social_login())
@@ -187,9 +192,12 @@ class KakaoLoginCallbackAPIView(APIView):
         social_provider = "kakao"
 
         try:
-            user = User.objects.get(email=email, social_provider=social_provider)
+            user = User.objects.get_user_by_email_and_social_provider(email=email, social_provider=social_provider)
 
-        except ObjectDoesNotExist:
+            if not user:
+                raise UserNotFound
+
+        except UserNotFound:
             user = User.objects.create_user(email=email, nickname=nickname, social_provider=social_provider)
 
         token = TokenObtainPairSerializer.get_token(user)
@@ -210,6 +218,8 @@ class KakaoLoginCallbackAPIView(APIView):
             "refresh_token",
             refresh_token,
             httponly=True,
+            samesite="None",
+            secure=True,
             expires=timezone.now() + JWT_REFRESH_TOKEN_EXPIRE,
         )
 
@@ -220,7 +230,7 @@ class LogoutAPIView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
-        methods=["GET"],
+        methods=["POST"],
         tags=["auth"],
         summary="로그아웃 (refresh_token 무효화)",
         description="refresh_token을 무효화 처리합니다. 쿠키 값에서 refresh token을 가져옵니다.",
@@ -249,7 +259,7 @@ class LogoutAPIView(APIView):
             ),
         },
     )
-    def get(self, request):
+    def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
 
         if not refresh_token:
