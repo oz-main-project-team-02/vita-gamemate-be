@@ -210,6 +210,8 @@ class KakaoLoginCallbackAPIView(APIView):
             "refresh_token",
             refresh_token,
             httponly=True,
+            samesite="None",
+            secure=True,
             expires=timezone.now() + JWT_REFRESH_TOKEN_EXPIRE,
         )
 
@@ -220,7 +222,7 @@ class LogoutAPIView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
-        methods=["GET"],
+        methods=["POST"],
         tags=["auth"],
         summary="로그아웃 (refresh_token 무효화)",
         description="refresh_token을 무효화 처리합니다. 쿠키 값에서 refresh token을 가져옵니다.",
@@ -249,7 +251,7 @@ class LogoutAPIView(APIView):
             ),
         },
     )
-    def get(self, request):
+    def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
 
         if not refresh_token:
