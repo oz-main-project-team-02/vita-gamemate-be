@@ -2,7 +2,6 @@ from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import AccessToken
 
 from users.exceptions import MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound
 from users.models import User
@@ -59,9 +58,9 @@ class UserProfileAPIView(APIView):
             user = User.objects.get_user_by_id(user_id)
 
             if not user:
-                raise User.DoesNotExist
+                raise UserNotFound
 
-        except User.DoesNotExist:
+        except UserNotFound:
             return Response({"message": "사용자를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserProfileSerializer(user)  # 사용자가 보낸 데이터는 아니기 때문에 validation은 할 필요 없다고 생각함

@@ -30,7 +30,7 @@ class UserService:
 
             return user
 
-        except User.DoesNotExist:
+        except UserNotFound:
             raise UserNotFound
 
         except Exception as e:
