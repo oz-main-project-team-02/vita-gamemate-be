@@ -17,3 +17,9 @@ class UserManager(BaseUserManager):
             raise ValueError(str(e))
         user.save(using=self._db)
         return user
+
+    def get_user_by_id(self, user_id: int):
+        try:
+            return self.get(id=user_id)
+        except self.model.DoesNotExist:
+            return None

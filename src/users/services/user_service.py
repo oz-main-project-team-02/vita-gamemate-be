@@ -22,7 +22,12 @@ class UserService:
         try:
             token = AccessToken(access_token)
             user_id = token.get("user_id")
-            user = User.objects.get(pk=user_id)
+
+            user = User.objects.get_user_by_id(user_id)
+
+            if not user:
+                raise UserNotFound
+
             return user
 
         except User.DoesNotExist:
