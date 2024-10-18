@@ -29,3 +29,9 @@ class UserManager(BaseUserManager):
             return self.get(email=email, social_provider=social_provider)
         except self.model.DoesNotExist:
             return None
+
+    def get_user_by_nickname(self, user_nickname: str):
+        try:
+            return self.get(nickname=user_nickname)
+        except self.model.DoesNotExist:
+            return None

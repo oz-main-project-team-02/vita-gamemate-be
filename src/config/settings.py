@@ -23,6 +23,7 @@ ALLOWED_HOSTS = [
 ]
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -31,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # third
     "corsheaders",
+    "channels",
     "rest_framework",
     "drf_spectacular",
     "rest_framework_simplejwt",
@@ -76,6 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -192,12 +195,15 @@ SPECTACULAR_SETTINGS = {
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("MYSQL_DATABASE"),
-        "USER": os.getenv("MYSQL_USER"),
-        "PASSWORD": os.getenv("MYSQL_PASSWORD"),
-        "HOST": os.getenv("MYSQL_HOST"),
-        "PORT": os.getenv("MYSQL_PORT"),
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.environ.get("RDS_HOSTNAME"),
+        "NAME": os.environ.get("RDS_DB_NAME"),
+        "USER": os.environ.get("RDS_USERNAME"),
+        "PASSWORD": os.environ.get("RDS_PASSWORD"),
+        "PORT": os.environ.get("RDS_PORT", 5432),
+        "OPTIONS": {
+            "client_encoding": "UTF8",  # UTF-8 문자셋 설정
+        },
     }
 }
 
@@ -212,6 +218,15 @@ CACHES = {
             "PASSWORD": os.getenv("REDIS_PASSWORD"),
         },
     }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.environ.get("REDIS_HOST", "localhost"), 6379)],
+        },
+    },
 }
 
 LOGGING = {
