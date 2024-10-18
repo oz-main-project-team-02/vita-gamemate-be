@@ -4,11 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.services.user_service import UserService
 from wallets.models.wallets_model import Wallet
-from wallets.serializers.wallets_serializers import (
-    WalletBalanceSerializer,
-    WalletRechargeSerializer,
-)
+from wallets.serializers.wallets_serializers import WalletRechargeSerializer
 
 
 class WalletBalanceView(APIView):
@@ -35,20 +33,21 @@ class WalletBalanceView(APIView):
             ),
         },
     )
-    def get(self, request, user_id, *args, **kwargs):
-        serializer = WalletBalanceSerializer(data={"user_id": user_id}, context={"request": request})
-        serializer.is_valid(raise_exception=True)
+    def get(self, request, *args, **kwargs):
+        user, error_response = UserService.get_user_from_token(request.headers.get("Authorization"))
+        if error_response:
+            return error_response
 
         try:
-            wallet = Wallet.objects.get(user_id=user_id)
-            return Response({"user_id": user_id, "coin_balance": wallet.coin}, status=status.HTTP_200_OK)
+            wallet = Wallet.objects.get(user_id=user.id)
+            return Response({"user_id": user.id, "coin_balance": wallet.coin}, status=status.HTTP_200_OK)
         except Wallet.DoesNotExist:
             return Response({"error": "지갑을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class WalletRechargeView(APIView):
     permission_classes = [IsAuthenticated]
-    serializers_class = WalletRechargeSerializer
+    serializer_class = WalletRechargeSerializer
 
     @extend_schema(
         summary="지갑 코인 충전",
@@ -75,14 +74,17 @@ class WalletRechargeView(APIView):
             ),
         },
     )
-    def post(self, request, user_id, *args, **kwargs):
-        serializer = WalletRechargeSerializer(data={"coin": request.query_params.get("coin")})
+    def post(self, request, *args, **kwargs):
+        user, error_response = UserService.get_user_from_token(request.headers.get("Authorization"))
+        if error_response:
+            return error_response
+
+        serializer = self.serializer_class(data={"coin": request.query_params.get("coin")})
         serializer.is_valid(raise_exception=True)
         coin_amount = serializer.validated_data["coin"]
 
-        # 사용자 지갑을 가져와서 충전 진행
         try:
-            wallet = Wallet.objects.get(user_id=user_id)
+            wallet = Wallet.objects.get(user_id=user.id)
         except Wallet.DoesNotExist:
             return Response({"error": "지갑을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
