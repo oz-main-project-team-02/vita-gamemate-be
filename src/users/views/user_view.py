@@ -2,8 +2,13 @@ from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import AccessToken
 
+from users.exceptions import (
+    InvalidAuthorizationHeader,
+    MissingAuthorizationHeader,
+    TokenMissing,
+    UserNotFound,
+)
 from users.models import User
 from users.serializers.user_serializer import UserProfileSerializer
 from users.services.user_service import UserService
@@ -55,8 +60,12 @@ class UserProfileAPIView(APIView):
     )
     def get(self, request, user_id):
         try:
-            user = User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+            user = User.objects.get_user_by_id(user_id)
+
+            if not user:
+                raise UserNotFound
+
+        except UserNotFound:
             return Response({"message": "사용자를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserProfileSerializer(user)  # 사용자가 보낸 데이터는 아니기 때문에 validation은 할 필요 없다고 생각함
@@ -98,8 +107,23 @@ class UserMeAPIView(APIView):
                 response={"type": "object", "properties": {"message": {"type": "string"}}},
                 examples=[
                     OpenApiExample(
-                        name="잘못된 토큰",
-                        value={"message": "토큰이 유효하지 않습니다."},
+                        name="토큰 누락",
+                        value={"message": "access_token을 가져오지 못했습니다."},
+                        response_only=True,
+                    ),
+                ],
+            ),
+            status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+                response={"type": "object", "properties": {"message": {"type": "string"}}},
+                examples=[
+                    OpenApiExample(
+                        name="잘못된 헤더",
+                        value={"message": "유효하지 않은 Authorization 헤더입니다."},
+                        response_only=True,
+                    ),
+                    OpenApiExample(
+                        name="누락된 헤더",
+                        value={"message": "Authorization 헤더가 누락되었습니다."},
                         response_only=True,
                     ),
                 ],
@@ -107,11 +131,6 @@ class UserMeAPIView(APIView):
             status.HTTP_404_NOT_FOUND: OpenApiResponse(
                 response={"type": "object", "properties": {"message": {"type": "string"}}},
                 examples=[
-                    OpenApiExample(
-                        name="토큰 누락",
-                        value={"message": "access_token을 가져오지 못했습니다."},
-                        response_only=True,
-                    ),
                     OpenApiExample(
                         name="사용자 없음",
                         value={"message": "사용자를 찾지 못했습니다."},
@@ -123,10 +142,12 @@ class UserMeAPIView(APIView):
     )
     def get(self, request):
         authorization_header = request.headers.get("Authorization")
-        user, response = UserService.get_user_from_token(authorization_header)
 
-        if response:
-            return response
+        try:
+            user = UserService.get_user_from_token(authorization_header)
+
+        except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
+            return Response({"message": str(e)}, status=e.status_code)
 
         serializer = UserProfileSerializer(user)
 
@@ -136,7 +157,7 @@ class UserMeAPIView(APIView):
         methods=["PATCH"],
         tags=["user"],
         summary="내 프로필 정보 수정하기",
-        description="header에 Authorization: Bearer your_access_token 필수",
+        description="gender, description, profile_image, birth는 null값과 str을 반환할 수 있음. 오른쪽 자물쇠에 access token 입력.",
         request=UserProfileSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
@@ -199,10 +220,12 @@ class UserMeAPIView(APIView):
     )
     def patch(self, request):
         authorization_header = request.headers.get("Authorization")
-        user, response = UserService.get_user_from_token(authorization_header)
 
-        if response:
-            return response
+        try:
+            user = UserService.get_user_from_token(authorization_header)
+
+        except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
+            return Response({"message": str(e)}, status=e.status_code)
 
         serializer = UserProfileSerializer(user, data=request.data)
 
