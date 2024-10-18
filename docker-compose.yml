@@ -11,6 +11,13 @@ services:
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
+    environment:
+      - DB_HOST=${RDS_HOSTNAME}
+      - DB_NAME=${RDS_DB_NAME}
+      - DB_USER=${RDS_USERNAME}
+      - DB_PASSWORD=${RDS_PASSWORD}
+    env_file:
+      - .env
     networks:
       - app_network
 
@@ -26,6 +33,13 @@ services:
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
+    environment:
+      - DB_HOST=${RDS_HOSTNAME}
+      - DB_NAME=${RDS_DB_NAME}
+      - DB_USER=${RDS_USERNAME}
+      - DB_PASSWORD=${RDS_PASSWORD}
+    env_file:
+      - .env
     networks:
       - app_network
 
@@ -41,21 +55,6 @@ services:
       - media_volume:/app/media
     #      - /resources/cert/localhost.pem:/etc/nginx/ssl/localhost.pem
     #      - /resources/cert/localhost-key.pem:/etc/nginx/ssl/localhost-key.pem
-    networks:
-      - app_network
-
-  mysql:
-    image: mysql:8.0
-    container_name: main-project-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3333:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
     networks:
       - app_network
 

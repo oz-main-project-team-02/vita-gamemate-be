@@ -194,12 +194,15 @@ SPECTACULAR_SETTINGS = {
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("MYSQL_DATABASE"),
-        "USER": os.getenv("MYSQL_USER"),
-        "PASSWORD": os.getenv("MYSQL_PASSWORD"),
-        "HOST": os.getenv("MYSQL_HOST"),
-        "PORT": os.getenv("MYSQL_PORT"),
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.environ.get("RDS_HOSTNAME"),
+        "NAME": os.environ.get("RDS_DB_NAME"),
+        "USER": os.environ.get("RDS_USERNAME"),
+        "PASSWORD": os.environ.get("RDS_PASSWORD"),
+        "PORT": os.environ.get("RDS_PORT", 5432),
+        "OPTIONS": {
+            "client_encoding": "UTF8",  # UTF-8 문자셋 설정
+        },
     }
 }
 
