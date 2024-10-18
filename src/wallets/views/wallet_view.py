@@ -4,6 +4,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.exceptions import (
+    InvalidAuthorizationHeader,
+    MissingAuthorizationHeader,
+    TokenMissing,
+    UserNotFound,
+)
 from users.services.user_service import UserService
 from wallets.models.wallets_model import Wallet
 from wallets.serializers.wallets_serializers import WalletRechargeSerializer
@@ -34,9 +40,13 @@ class WalletBalanceView(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
-        user, error_response = UserService.get_user_from_token(request.headers.get("Authorization"))
-        if error_response:
-            return error_response
+        authorization_header = request.headers.get("Authorization")
+
+        try:
+            user = UserService.get_user_from_token(authorization_header)
+
+        except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
+            return Response({"message": str(e)}, status=e.status_code)
 
         try:
             wallet = Wallet.objects.get(user_id=user.id)
@@ -75,9 +85,13 @@ class WalletRechargeView(APIView):
         },
     )
     def post(self, request, *args, **kwargs):
-        user, error_response = UserService.get_user_from_token(request.headers.get("Authorization"))
-        if error_response:
-            return error_response
+        authorization_header = request.headers.get("Authorization")
+
+        try:
+            user = UserService.get_user_from_token(authorization_header)
+
+        except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
+            return Response({"message": str(e)}, status=e.status_code)
 
         serializer = self.serializer_class(data={"coin": request.query_params.get("coin")})
         serializer.is_valid(raise_exception=True)
