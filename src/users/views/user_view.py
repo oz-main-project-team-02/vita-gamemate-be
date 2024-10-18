@@ -142,7 +142,7 @@ class UserMeAPIView(APIView):
     )
     def get(self, request):
         authorization_header = request.headers.get("Authorization")
-        print(authorization_header)
+
         try:
             user = UserService.get_user_from_token(authorization_header)
 
