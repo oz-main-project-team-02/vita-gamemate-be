@@ -23,6 +23,7 @@ ALLOWED_HOSTS = [
 ]
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -32,7 +33,6 @@ INSTALLED_APPS = [
     # third
     "corsheaders",
     "channels",
-    "daphne",
     "rest_framework",
     "drf_spectacular",
     "rest_framework_simplejwt",
