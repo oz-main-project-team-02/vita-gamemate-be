@@ -51,7 +51,7 @@ class CustomTokenRefreshView(APIView):
         refresh_token = request.COOKIES.get("refresh_token")  # 쿠키에서 refresh 토큰 가져오기
 
         if not refresh_token:
-            return Response({"detail": "refresh token이 쿠키에 존재하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"error": "refresh token이 쿠키에 존재하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED)
 
         try:
             refresh = RefreshToken(refresh_token)
