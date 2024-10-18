@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "reviews.apps.ReviewsConfig",
     "games.apps.GamesConfig",
     "chats.apps.ChatsConfig",
+    "mates.apps.MatesConfig",
 ]
 
 MIDDLEWARE = [
