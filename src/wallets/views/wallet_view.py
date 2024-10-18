@@ -50,7 +50,7 @@ class WalletBalanceView(APIView):
 
         try:
             wallet = Wallet.objects.get(user_id=user.id)
-            return Response({"user_id": user.id, "coin_balance": wallet.coin}, status=status.HTTP_200_OK)
+            return Response({"user_id": user.id, "coin": wallet.coin}, status=status.HTTP_200_OK)
         except Wallet.DoesNotExist:
             return Response({"error": "지갑을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -73,7 +73,7 @@ class WalletRechargeView(APIView):
                     "type": "object",
                     "properties": {
                         "message": {"type": "string", "example": "코인이 성공적으로 충전되었습니다."},
-                        "new_balance": {"type": "integer", "example": 150},
+                        "coin": {"type": "integer", "example": 150},
                     },
                 },
                 description="Successful Coin Recharge",
@@ -93,7 +93,7 @@ class WalletRechargeView(APIView):
         except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
             return Response({"message": str(e)}, status=e.status_code)
 
-        serializer = self.serializer_class(data={"coin": request.query_params.get("coin")})
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         coin_amount = serializer.validated_data["coin"]
 
@@ -105,4 +105,4 @@ class WalletRechargeView(APIView):
         wallet.coin += coin_amount
         wallet.save()
 
-        return Response({"message": "코인이 성공적으로 충전되었습니다.", "new_balance": wallet.coin}, status=status.HTTP_200_OK)
+        return Response({"message": "코인이 성공적으로 충전되었습니다.", "coin": wallet.coin}, status=status.HTTP_200_OK)
