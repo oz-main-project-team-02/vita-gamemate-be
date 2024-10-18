@@ -19,6 +19,10 @@ drf-spectacular = "^0.27.2"
 pyjwt = "^2.9.0"
 djangorestframework-simplejwt = "^5.3.1"
 django-cors-headers = "^4.5.0"
+channels = "^4.0.0"
+channels-redis = "^4.0.0"
+redis = "^5.0.1"
+daphne = "^4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"

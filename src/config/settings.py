@@ -31,6 +31,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # third
     "corsheaders",
+    "channels",
+    "daphne",
     "rest_framework",
     "drf_spectacular",
     "rest_framework_simplejwt",
@@ -75,6 +77,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -210,6 +213,15 @@ CACHES = {
             "PASSWORD": os.getenv("REDIS_PASSWORD"),
         },
     }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.environ.get("REDIS_HOST", "localhost"), 6379)],
+        },
+    },
 }
 
 LOGGING = {
