@@ -66,7 +66,7 @@ class UserProfileAPIView(APIView):
                 raise UserNotFound
 
         except UserNotFound:
-            return Response({"message": "사용자를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "사용자를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserProfileSerializer(user)  # 사용자가 보낸 데이터는 아니기 때문에 validation은 할 필요 없다고 생각함
 
@@ -142,12 +142,12 @@ class UserMeAPIView(APIView):
     )
     def get(self, request):
         authorization_header = request.headers.get("Authorization")
-
+        print(authorization_header)
         try:
             user = UserService.get_user_from_token(authorization_header)
 
         except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
-            return Response({"message": str(e)}, status=e.status_code)
+            return Response({"error": str(e)}, status=e.status_code)
 
         serializer = UserProfileSerializer(user)
 
@@ -225,7 +225,7 @@ class UserMeAPIView(APIView):
             user = UserService.get_user_from_token(authorization_header)
 
         except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
-            return Response({"message": str(e)}, status=e.status_code)
+            return Response({"error": str(e)}, status=e.status_code)
 
         serializer = UserProfileSerializer(user, data=request.data)
 
