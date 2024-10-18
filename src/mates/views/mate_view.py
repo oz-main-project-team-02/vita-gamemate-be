@@ -4,8 +4,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from mates.models import MateGameInfo
-from users.exceptions import MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound
-from mates.serializers.mate_serializer import RegisterMateSerializer, MateSerializer
+from mates.serializers.mate_serializer import MateSerializer, RegisterMateSerializer
+from users.exceptions import (
+    InvalidAuthorizationHeader,
+    MissingAuthorizationHeader,
+    TokenMissing,
+    UserNotFound,
+)
 from users.services.user_service import UserService
 
 

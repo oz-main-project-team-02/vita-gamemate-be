@@ -2,7 +2,6 @@ from django.urls import path
 
 from users.views import oauth_view, token_view, user_view
 
-
 urlpatterns = [
     # 사용자 로그인 회원가입
     path("google/login/", oauth_view.GoogleLoginAPIView.as_view(), name="google-login"),

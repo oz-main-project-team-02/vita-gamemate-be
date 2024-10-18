@@ -1,8 +1,8 @@
 from django.db import models
 
+from games.models import Game
 from mates.managers import MateGameInfoManager
 from users.models.user_model import User
-from games.models import Game
 
 
 class MateGameInfo(models.Model):
