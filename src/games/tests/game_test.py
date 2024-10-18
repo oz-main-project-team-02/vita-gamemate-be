@@ -22,6 +22,7 @@ class GameListViewTest(APITestCase):
         self.assertEqual(response.data[0]["name"], "LOL")
         self.assertEqual(response.data[0]["image"], "image1.png")
 
+
 class GameDetailViewTest(APITestCase):
     def setUp(self):
         # Given: 테스트에 사용할 게임 데이터를 미리 생성합
@@ -55,5 +56,3 @@ class GameDetailViewTest(APITestCase):
         # Then: 응답이 400 Bad Request이고, 오류 메시지가 올바른지 확인
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {"error": "해당하는 게임을 찾지 못했습니다."})
-
-

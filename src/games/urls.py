@@ -1,7 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.urls import path
 
-from games.views.game_view import GameListView, GameDetailView
+from games.views.game_view import GameDetailView, GameListView
 
 
 # 임시 뷰 함수 입니다.

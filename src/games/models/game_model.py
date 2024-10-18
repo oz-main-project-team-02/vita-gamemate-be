@@ -7,6 +7,7 @@ class Gametype(models.TextChoices):
     TFT = "전략적팀전투", "전략적팀전투"
     BG = "배틀그라운드", "배틀그라운드"
 
+
 class Game(models.Model):
     name = models.CharField(choices=Gametype.choices, max_length=255)
     image = models.CharField(max_length=255)
