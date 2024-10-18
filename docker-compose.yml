@@ -16,6 +16,7 @@ services:
       - DB_NAME=${RDS_DB_NAME}
       - DB_USER=${RDS_USERNAME}
       - DB_PASSWORD=${RDS_PASSWORD}
+      - SKIP_MIGRATIONS=True
     env_file:
       - .env
     networks:
