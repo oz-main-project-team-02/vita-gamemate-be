@@ -15,3 +15,6 @@ nginx
 
 # Gunicorn 실행
 exec poetry run gunicorn config.wsgi:application --bind 0.0.0.0:8000
+
+# Daphne 실행
+exec daphne -u /tmp/daphne.sock myproject.asgi:application
