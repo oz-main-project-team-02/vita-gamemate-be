@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+import games
 from games.models.game_model import Game
 from games.serializers.game_serializers import GameSerializer
 from rest_framework.exceptions import ValidationError
@@ -49,12 +50,6 @@ class GameListView(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            limit = request.query_params.get("limit")
-            games = Game.objects.all()
-
-            if limit is not None:
-                games = games[: int(limit)]
-
             serializer = GameSerializer(games, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except (ValueError, ValidationError, TypeError) as e:
