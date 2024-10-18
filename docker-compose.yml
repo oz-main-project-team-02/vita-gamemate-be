@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   django_gunicorn:
+    container_name: django_gunicorn
     build: .
     expose:
       - "8000"
@@ -15,17 +16,16 @@ services:
 
   nginx:
     image: nginx:latest
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./resources/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+#      - ./resources/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/app/static
       - media_volume:/app/media
-      - ./resources/cert/localhost.pem:/etc/nginx/ssl/localhost.pem
-      - ./resources/cert/localhost-key.pem:/etc/nginx/ssl/localhost-key.pem
-    depends_on:
-      - django_gunicorn
+#      - /resources/cert/localhost.pem:/etc/nginx/ssl/localhost.pem
+#      - /resources/cert/localhost-key.pem:/etc/nginx/ssl/localhost-key.pem
     networks:
       - app_network
 

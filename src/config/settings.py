@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-@67tlej#l=ql#!-o0m&9+x%k+n
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
+    "resdineconsulting.com",
     "localhost:5173",
     "127.0.0.1:5173",
     "127.0.0.1",
@@ -135,6 +135,7 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+    "refresh_token",
 ]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -145,8 +146,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1",  # HTTP 127.0.0.1 추가
     "https://43.202.32.218/",
     "http://43.202.32.218/",
-    "http://ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
-    "https://ec2-43-202-32-218.ap-northeast-2.compute.amazonaws.com",
+    "http://resdineconsulting.com",
+    "https://resdineconsulting.com",
 ]
 
 REST_FRAMEWORK = {
