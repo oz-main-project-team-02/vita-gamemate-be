@@ -81,7 +81,6 @@ class WalletRechargeView(APIView):
         serializer.is_valid(raise_exception=True)
         coin_amount = serializer.validated_data["coin"]
 
-
         try:
             wallet = Wallet.objects.get(user_id=user.id)
         except Wallet.DoesNotExist:
