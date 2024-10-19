@@ -18,7 +18,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChatRoom
-        fields = ("id", "main_user_nickname", "other_user_nickname", "latest_message", "lastest_message_time")
+        fields = ("id", "main_user_nickname", "other_user_nickname", "latest_message", "latest_message_time")
 
     # 최신 메시지를 가져오는 메소드
     def get_latest_message(self, obj):
@@ -30,7 +30,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         return None
 
     # 최신 메시지의 시간을 가져오는 메소드
-    def get_last_message_time(self, obj):
+    def get_latest_message_time(self, obj):
         return self.context.get("latest_message_time")
 
     # main_user의 닉네임을 반환하는 메소드
