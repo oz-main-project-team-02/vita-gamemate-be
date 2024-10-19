@@ -18,26 +18,30 @@ from .models import ChatRoom, Message
 from .serializers import ChatRoomSerializer, MessageSerializer
 
 
-def perform_create(self, serializer):
-    other_user_nickname = self.request.data.get("other_user_nickname")
-    if not other_user_nickname:
-        raise ValidationError("other_user_nickname 파라미터가 필요합니다.")
+class ChatRoomCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChatRoomSerializer
 
-    main_user = self.get_user_from_request()
-    other_user, _ = UserManager.get_user_by_nickname(other_user_nickname)
+    def perform_create(self, serializer):
+        other_user_nickname = self.request.data.get("other_user_nickname")
+        if not other_user_nickname:
+            raise ValidationError("other_user_nickname 파라미터가 필요합니다.")
 
-    existing_chatroom = ChatRoom.objects.filter(main_user=main_user, other_user=other_user).first()
+        main_user = self.get_user_from_request()
+        other_user, _ = UserManager.get_user_by_nickname(other_user_nickname)
 
-    if existing_chatroom:
-        serializer = self.get_serializer(existing_chatroom)
+        existing_chatroom = ChatRoom.objects.filter(main_user=main_user, other_user=other_user).first()
+
+        if existing_chatroom:
+            serializer = self.get_serializer(existing_chatroom)
+            response_data = serializer.data
+            response_data["room_id"] = existing_chatroom.id
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        chatroom = serializer.save(main_user=main_user, other_user=other_user)
         response_data = serializer.data
-        response_data["room_id"] = existing_chatroom.id
-        return Response(response_data, status=status.HTTP_200_OK)
-
-    chatroom = serializer.save(main_user=main_user, other_user=other_user)
-    response_data = serializer.data
-    response_data["room_id"] = chatroom.id
-    return Response(response_data, status=status.HTTP_201_CREATED)
+        response_data["room_id"] = chatroom.id
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class ChatRoomListView(generics.ListAPIView):
