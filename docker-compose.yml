@@ -26,7 +26,7 @@ services:
     container_name: django_daphne
     build: .
     entrypoint: /app/entrypoint.sh
-    command: daphne -b 0.0.0.0 -p 8001 myproject.asgi:application # Daphne 설정
+    command: daphne -b 0.0.0.0 -p 8001 src.asgi:application # Daphne 설정
     expose:
       - "8001"
     ports:

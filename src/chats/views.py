@@ -18,34 +18,26 @@ from .models import ChatRoom, Message
 from .serializers import ChatRoomSerializer, MessageSerializer
 
 
-# 사용자 정의 예외 클래스, 예외 발생 시 즉각적인 HTTP 응답을 위해 사용
-class ImmediateResponseException(Exception):
-    # 예외 인스턴스를 생성할 때 HTTP 응답 객체를 받음
-    def __init__(self, response):
-        self.response = response
+def perform_create(self, serializer):
+    other_user_nickname = self.request.data.get("other_user_nickname")
+    if not other_user_nickname:
+        raise ValidationError("other_user_nickname 파라미터가 필요합니다.")
 
+    main_user = self.get_user_from_request()
+    other_user, _ = UserManager.get_user_by_nickname(other_user_nickname)
 
-class ChatRoomCreateView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ChatRoomSerializer
+    existing_chatroom = ChatRoom.objects.filter(main_user=main_user, other_user=other_user).first()
 
-    def perform_create(self, serializer):
-        other_user_nickname = self.request.data.get("other_user_nickname")
+    if existing_chatroom:
+        serializer = self.get_serializer(existing_chatroom)
+        response_data = serializer.data
+        response_data["room_id"] = existing_chatroom.id
+        return Response(response_data, status=status.HTTP_200_OK)
 
-        if not other_user_nickname:
-            raise ValidationError("other_user_nickname 파라미터가 필요합니다.")
-
-        authorization_header = self.request.headers.get("Authorization")
-        main_user = UserService.get_user_from_token(authorization_header)
-        other_user, _ = UserManager.get_user_by_nickname(other_user_nickname)
-
-        existing_chatroom = ChatRoom.objects.filter(main_user=main_user, other_user=other_user).first()
-
-        if existing_chatroom:
-            serializer = ChatRoomSerializer(existing_chatroom, context={"request": self.request})
-            raise ImmediateResponseException(Response(serializer.data, status=status.HTTP_200_OK))
-
-        serializer.save(main_user=main_user, other_user=other_user)
+    chatroom = serializer.save(main_user=main_user, other_user=other_user)
+    response_data = serializer.data
+    response_data["room_id"] = chatroom.id
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class ChatRoomListView(generics.ListAPIView):
