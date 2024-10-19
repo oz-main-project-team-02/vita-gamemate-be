@@ -7,7 +7,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("games", "add_game"),
-        ("games", "add_games"),
     ]
 
     operations = []
