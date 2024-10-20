@@ -10,7 +10,7 @@ from users.exceptions import (
     UserNotFound,
 )
 from users.models import User
-from users.serializers.user_serializer import UserProfileSerializer
+from users.serializers.user_serializer import UserProfileSerializer, UserMateSerializer
 from users.services.user_service import UserService
 
 
@@ -68,8 +68,11 @@ class UserProfileAPIView(APIView):
         except UserNotFound:
             return Response({"error": "사용자를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UserProfileSerializer(user)  # 사용자가 보낸 데이터는 아니기 때문에 validation은 할 필요 없다고 생각함
+        if user.is_mate is False:
+            serializer = UserProfileSerializer(user)  # 사용자가 보낸 데이터는 아니기 때문에 validation은 할 필요 없다고 생각함
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        serializer = UserMateSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

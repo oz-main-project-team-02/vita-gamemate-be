@@ -22,8 +22,8 @@ class RegisterMateSerializer(serializers.ModelSerializer):
         ]
 
 
-class MateSerializer(serializers.ModelSerializer):
+class MateGameInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MateGameInfo
-        fields = "__all__"
+        fields = ["game_id", "description", "image", "level", "request_price"]
