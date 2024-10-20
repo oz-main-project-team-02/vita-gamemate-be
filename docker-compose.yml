@@ -26,7 +26,6 @@ services:
     container_name: django_daphne
     build: .
     entrypoint: /app/entrypoint.sh
-    command: daphne -b 0.0.0.0 -p 8001 src.config.asgi:application # Daphne 설정
     expose:
       - "8001"
     ports:
@@ -51,11 +50,11 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      #      - ./resources/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./resources/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/app/static
       - media_volume:/app/media
-    #      - /resources/cert/localhost.pem:/etc/nginx/ssl/localhost.pem
-    #      - /resources/cert/localhost-key.pem:/etc/nginx/ssl/localhost-key.pem
+      - ./resources/cert/fullchain.pem:/etc/letsencrypt/live/resdineconsulting.>
+      - ./resources/cert/privkey.pem:/etc/letsencrypt/live/resdineconsulting.co>
     networks:
       - app_network
 
@@ -75,7 +74,8 @@ networks:
     driver: bridge
 
 volumes:
-  mysql_data:
   redis_data:
   static_volume:
   media_volume:
+
+
