@@ -1,3 +1,5 @@
+from time import timezone
+
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
@@ -100,6 +102,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         # 메시지를 생성하고 데이터베이스에 저장
         Message.objects.create(room=room, sender_nickname=sender_nickname, text=message_text)
+
+        # 새로운 메시지가 생성된 후 ChatRoom의 updated_at을 갱신
+        room.updated_at = timezone.now()
+        room.save()
 
     @database_sync_to_async
     def check_room_exists(self, room_id):
