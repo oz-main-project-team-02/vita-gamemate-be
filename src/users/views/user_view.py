@@ -10,7 +10,7 @@ from users.exceptions import (
     UserNotFound,
 )
 from users.models import User
-from users.serializers.user_serializer import UserProfileSerializer, UserMateSerializer
+from users.serializers.user_serializer import UserMateSerializer, UserProfileSerializer
 from users.services.user_service import UserService
 
 
