@@ -22,7 +22,6 @@ class GameListViewTest(APITestCase):
         self.assertEqual(response.data[0]["name"], "LOL")
         self.assertEqual(response.data[0]["image"], "image1.png")
 
-
 class GameDetailViewTest(APITestCase):
     def setUp(self):
         # Given: 테스트에 사용할 게임 데이터를 미리 생성합
@@ -56,3 +55,27 @@ class GameDetailViewTest(APITestCase):
         # Then: 응답이 400 Bad Request이고, 오류 메시지가 올바른지 확인
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, {"error": "해당하는 게임을 찾지 못했습니다."})
+
+class PopularGameListViewTests(APITestCase):
+    def setUp(self):
+        # Given: 테스트용 게임 데이터를 생성
+        Game.objects.create(name="Game A", genre="RPG", rating=4.5, views=100)
+        Game.objects.create(name="Game B", genre="Action", rating=4.0, views=150)
+        Game.objects.create(name="Game C", genre="Puzzle", rating=3.5, views=50)
+
+    def test_popular_games_list(self):
+            # Given: 인기 게임 조회 API URL 설정
+            url = reverse('popular-games')
+
+            # When: API에 GET 요청을 보냄
+            response = self.client.get(url)
+
+            # Then: 응답 상태 코드가 200 OK이어야 함
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # And: 반환된 데이터의 개수가 2개여야 함
+            self.assertEqual(len(response.data), 2)
+
+            # And: 조회수 기준 상위 2개의 게임이 (Game B, Game A) 순서로 반환되어야 함
+            self.assertEqual(response.data[0]['name'], "Game B")
+            self.assertEqual(response.data[1]['name'], "Game A")
