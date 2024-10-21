@@ -19,4 +19,5 @@ urlpatterns = [
     path("api/v1/reviews/", include("reviews.urls")),
     path("api/v1/chats/", include("chats.urls")),
     path("api/v1/mates/", include("mates.urls")),
+    path("api/v1/game/requests/", include("game_requests.urls")),
 ]
