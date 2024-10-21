@@ -20,7 +20,7 @@ class WalletBalanceView(APIView):
 
     @extend_schema(
         summary="지갑 잔액 조회",
-        tags=["아직 개발중입니다. 사용을 멈춰주세요!"],
+        tags=["Wallet"],
         description="사용자의 지갑에 있는 현재 코인 잔액을 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(name="user_id", description="사용자 ID (유저 PK)", required=True, type=int, location=OpenApiParameter.PATH),
@@ -61,7 +61,7 @@ class WalletRechargeView(APIView):
 
     @extend_schema(
         summary="지갑 코인 충전",
-        tags=["아직 개발중입니다. 사용을 멈춰주세요!"],
+        tags=["Wallet"],
         description="사용자의 지갑에 코인을 충전하는 API입니다. 쿼리 파라미터로 충전할 코인 수를 전달해야 합니다.",
         parameters=[
             OpenApiParameter(name="coin", description="충전할 코인 수", required=True, type=int, location=OpenApiParameter.QUERY),
