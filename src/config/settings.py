@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "games.apps.GamesConfig",
     "chats.apps.ChatsConfig",
     "mates.apps.MatesConfig",
+    "game_requests.apps.GameRequestsConfig",
 ]
 
 MIDDLEWARE = [
