@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "storages",
+    "django_extensions",
     # own
     "users.apps.UsersConfig",
     "wallets.apps.WalletsConfig",
@@ -148,6 +149,7 @@ CSRF_TRUSTED_ORIGINS = [
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+    "PAGE_SIZE": 10,
 }
 
 JWT_ACCESS_TOKEN_EXPIRE = timedelta(hours=1)

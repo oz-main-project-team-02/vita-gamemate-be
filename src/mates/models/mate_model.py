@@ -1,7 +1,10 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from games.models import Game
+from mates.exceptions import InvalidLevelError
 from mates.managers import MateGameInfoManager
+from mates.utils import GAME_LEVEL_CHOICES
 from users.models.user_model import User
 
 
@@ -20,3 +23,12 @@ class MateGameInfo(models.Model):
     class Meta:
         db_table = "mate_game_info"
         unique_together = (("user", "game"),)
+
+    def clean(self):
+        super().clean()
+
+        # 게임별 레벨 선택 검사
+        if self.game_id and self.level:
+            level_choices = dict(GAME_LEVEL_CHOICES.get(self.game_id, []))
+            if self.level not in level_choices:
+                raise InvalidLevelError()
