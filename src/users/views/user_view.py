@@ -70,7 +70,7 @@ class UserProfileAPIView(APIView):
 
         if user.is_mate is False:
             serializer = UserProfileSerializer(user)  # 사용자가 보낸 데이터는 아니기 때문에 validation은 할 필요 없다고 생각함
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         serializer = UserMateSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
