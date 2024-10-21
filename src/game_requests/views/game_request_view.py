@@ -10,7 +10,12 @@ from game_requests.serializers.game_request_serializer import (
     GameRequestReceivedSerializer,
 )
 from game_requests.utils import GameRequestPagination
-from users.exceptions import MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound
+from users.exceptions import (
+    InvalidAuthorizationHeader,
+    MissingAuthorizationHeader,
+    TokenMissing,
+    UserNotFound,
+)
 from users.models import User
 from users.services.user_service import UserService
 
