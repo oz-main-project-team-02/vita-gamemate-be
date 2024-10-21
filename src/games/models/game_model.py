@@ -11,7 +11,7 @@ class Gametype(models.TextChoices):
 class Game(models.Model):
     name = models.CharField(choices=Gametype.choices, max_length=255)
     image = models.CharField(max_length=255)
-    views = models.IntegerField(default=0) # 조회수
+    views = models.IntegerField(default=0)  # 조회수
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

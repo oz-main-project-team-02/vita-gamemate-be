@@ -31,10 +31,11 @@ class GameDetailView(APIView):
             return Response({"error": "해당하는 게임을 찾지 못했습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 class PopularGameListView(APIView):
-    def get(self, request): # 조회수 기준 상위 2개의 인기 게임 조회
-        popular_games = Game.objects.order_by('-views')[:2]
+    def get(self, request):
+        popular_games = Game.objects.order_by("-views")[:2]
+
+        if not popular_games:
+            return Response({"error": "인기 게임 조회에 실패하였습니다."}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = GameSerializer(popular_games, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
