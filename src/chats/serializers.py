@@ -33,10 +33,12 @@ class ChatRoomSerializer(serializers.ModelSerializer):
     def get_latest_message_time(self, obj):
         return self.context.get("latest_message_time")
 
-    # main_user의 닉네임을 반환하는 메소드
+     # main_user의 닉네임을 반환하는 메소드
     def get_main_user_nickname(self, obj):
-        return obj.main_user.nickname
-
-    # other_user의 이메일을 반환하는 메소드
+        print("Object type11:", type(obj))
+        print("get_main_user_nickname called with obj:", obj)
+        return obj.main_user.nickname 
+    
+     # other_user의 닉네임을 반환하는 메소드
     def get_other_user_nickname(self, obj):
-        return obj.other_user.nickname
+        return obj.other_user.nickname 
