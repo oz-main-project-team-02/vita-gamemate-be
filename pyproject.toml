@@ -24,6 +24,9 @@ channels-redis = "^4.0.0"
 redis = "^5.0.1"
 daphne = "^4.0.0"
 psycopg2-binary = "^2.9"  # PostgreSQL을 사용하기 위한 패키지
+boto3 = "^1.35.44"
+django-storages = {extras = ["s3"], version = "^1.14.4"}
+pillow = "^11.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"

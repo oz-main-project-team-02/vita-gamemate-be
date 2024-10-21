@@ -12,7 +12,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-@67tlej#l=ql#!-o0m&9+x%k+nz0e2s-a0+&jdwjmlx1m1@nx%")
-
 DEBUG = True
 
 ALLOWED_HOSTS = [
@@ -37,6 +36,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "storages",
     # own
     "users.apps.UsersConfig",
     "wallets.apps.WalletsConfig",
@@ -104,12 +104,6 @@ USE_I18N = True
 USE_TZ = False
 
 AUTH_USER_MODEL = "users.User"
-
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -274,6 +268,15 @@ LOGGING = {
     },
 }
 
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+    },
+}
+
 GOOGLE_CONFIG = {
     # key
     "CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID"),
@@ -308,5 +311,13 @@ KAKAO_CONFIG = {
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME")
-AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME")
+
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+AWS_LOCATION = "static"
+
+# S3에 정적 파일을 저장하도록 설정
+STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/"
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"

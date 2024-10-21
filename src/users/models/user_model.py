@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.db import models
 
 from users.managers import UserManager
@@ -21,7 +22,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
     gender = models.CharField(max_length=10, choices=Gender.choices, blank=True, null=True)
-    profile_image = models.CharField(max_length=255, blank=True, null=True)
+    profile_image = models.ImageField(upload_to="profiles/", storage=default_storage, blank=True, null=True)
     birthday = models.DateField(null=True, blank=True)
     description = models.CharField(max_length=200, null=True, blank=True)
     social_provider = models.CharField(
