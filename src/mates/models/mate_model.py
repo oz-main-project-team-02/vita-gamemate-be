@@ -9,7 +9,7 @@ class MateGameInfo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_column="user_id")
     game = models.ForeignKey(Game, on_delete=models.CASCADE, db_column="game_id")
     description = models.TextField()
-    image = models.CharField(max_length=255, blank=True, null=True)
+    image = models.ImageField(upload_to="mates/images/", blank=True, null=True)
     level = models.CharField(max_length=255, blank=True, null=True)
     request_price = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
