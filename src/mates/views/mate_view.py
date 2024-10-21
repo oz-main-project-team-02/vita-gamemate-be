@@ -4,7 +4,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from mates.models import MateGameInfo
-from mates.serializers.mate_serializer import MateSerializer, RegisterMateSerializer
+from mates.serializers.mate_serializer import (
+    MateGameInfoSerializer,
+    RegisterMateSerializer,
+)
 from users.exceptions import (
     InvalidAuthorizationHeader,
     MissingAuthorizationHeader,
