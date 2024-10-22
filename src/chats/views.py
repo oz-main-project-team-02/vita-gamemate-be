@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import Http404, JsonResponse
-from rest_framework import generics, serializers, status
+from django.utils import timezone
+from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,6 +13,7 @@ from users.exceptions import (
     UserNotFound,
 )
 from users.managers import UserManager
+from users.models import User
 from users.services.user_service import UserService
 
 from .models import ChatRoom, Message
@@ -22,25 +24,32 @@ class ChatRoomCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ChatRoomSerializer
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+
+        authorization_header = self.request.headers.get("Authorization")
+
+        try:
+            main_user = UserService.get_user_from_token(authorization_header)
+        except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
+            return Response({"message": str(e)}, status=e.status_code)
+
         other_user_nickname = self.request.data.get("other_user_nickname")
         if not other_user_nickname:
             raise ValidationError("other_user_nickname 파라미터가 필요합니다.")
 
-        main_user = self.get_user_from_request()
-        other_user, _ = UserManager.get_user_by_nickname(other_user_nickname)
-
+        other_user = User.objects.get(nickname=other_user_nickname)
         existing_chatroom = ChatRoom.objects.filter(main_user=main_user, other_user=other_user).first()
-
         if existing_chatroom:
+            existing_chatroom.updated_at = timezone.now()
+            existing_chatroom.save(update_fields=["updated_at"])
             serializer = self.get_serializer(existing_chatroom)
             response_data = serializer.data
-            response_data["room_id"] = existing_chatroom.id
             return Response(response_data, status=status.HTTP_200_OK)
 
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         chatroom = serializer.save(main_user=main_user, other_user=other_user)
         response_data = serializer.data
-        response_data["room_id"] = chatroom.id
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 

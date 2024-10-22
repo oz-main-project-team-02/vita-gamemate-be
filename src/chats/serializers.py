@@ -13,12 +13,22 @@ class ChatRoomSerializer(serializers.ModelSerializer):
     latest_message = serializers.SerializerMethodField()
     main_user_nickname = serializers.SerializerMethodField()
     other_user_nickname = serializers.SerializerMethodField()
+    other_user_profile_image = serializers.SerializerMethodField()
     # messages = MessageSerializer(many=True, read_only=True, source="messages.all")
     latest_message_time = serializers.SerializerMethodField()
+    updated_at = serializers.SerializerMethodField()
 
     class Meta:
         model = ChatRoom
-        fields = ("id", "main_user_nickname", "other_user_nickname", "latest_message", "latest_message_time")
+        fields = (
+            "id",
+            "main_user_nickname",
+            "other_user_nickname",
+            "other_user_profile_image",
+            "latest_message",
+            "latest_message_time",
+            "updated_at",
+        )
 
     # 최신 메시지를 가져오는 메소드
     def get_latest_message(self, obj):
@@ -35,8 +45,16 @@ class ChatRoomSerializer(serializers.ModelSerializer):
 
     # main_user의 닉네임을 반환하는 메소드
     def get_main_user_nickname(self, obj):
+        print("Object type11:", type(obj))
+        print("get_main_user_nickname called with obj:", obj)
         return obj.main_user.nickname
 
-    # other_user의 이메일을 반환하는 메소드
+    # other_user의 닉네임을 반환하는 메소드
     def get_other_user_nickname(self, obj):
         return obj.other_user.nickname
+
+    def get_other_user_profile_image(self, obj):
+        return obj.other_user.profile_image if obj.other_user.profile_image else None
+
+    def get_updated_at(self, obj):
+        return obj.updated_at

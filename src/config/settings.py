@@ -5,8 +5,6 @@ from pathlib import Path
 import pymysql
 from dotenv import load_dotenv
 
-pymysql.install_as_MySQLdb()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
@@ -14,12 +12,15 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-@67tlej#l=ql#!-o0m&9+x%k+nz0e2s-a0+&jdwjmlx1m1@nx%")
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "resdineconsulting.com",
-    "localhost:5173",
-    "127.0.0.1:5173",
-    "127.0.0.1",
-]
+# ALLOWED_HOSTS = [
+#     "resdineconsulting.com",
+#     "localhost",
+#     "localhost:5173",
+#     "127.0.0.1:5173",
+#     "127.0.0.1",
+# ]
+
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "daphne",
@@ -111,7 +112,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True  # 쿠키 등 credential 정보 허용
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -203,26 +204,28 @@ DATABASES = {
     }
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://localhost:6377",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CHARSET": "utf-8",
-            "DECODE_RESPONSES": True,
-            "PASSWORD": os.getenv("REDIS_PASSWORD"),
-        },
-    }
-}
+REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
+REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.environ.get("REDIS_HOST", "localhost"), 6379)],
+            "hosts": [f"redis://:{os.environ.get('REDIS_PASSWORD', '')}@redis:6379/0"],
         },
     },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": REDIS_PASSWORD,
+        },
+    }
 }
 
 LOGGING = {

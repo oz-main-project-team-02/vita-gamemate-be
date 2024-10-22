@@ -17,8 +17,12 @@ services:
       - DB_USER=${RDS_USERNAME}
       - DB_PASSWORD=${RDS_PASSWORD}
       - SKIP_MIGRATIONS=True
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     env_file:
       - .env
+    command: /bin/bash -c "source ~/.bashrc && cd /app/src && poetry run gunicorn config.wsgi:application --bind 0.0.0.0:8000"
     networks:
       - app_network
 
@@ -26,22 +30,25 @@ services:
     container_name: django_daphne
     build: .
     entrypoint: /app/entrypoint.sh
-    expose:
-      - "8001"
-    ports:
-      - "8001:8001"
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
+      - daphne_socket:/app/daphne_socket # UNIX 소켓을 위한 볼륨 추가
     environment:
       - DB_HOST=${RDS_HOSTNAME}
       - DB_NAME=${RDS_DB_NAME}
       - DB_USER=${RDS_USERNAME}
       - DB_PASSWORD=${RDS_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     env_file:
       - .env
+    command: /bin/bash -c "source ~/.bashrc && cd /app/src && poetry run daphne -u /app/daphne_socket/daphne.sock config.asgi:application"
     networks:
       - app_network
+    depends_on:
+      - redis
 
   nginx:
     image: nginx:latest
@@ -55,9 +62,12 @@ services:
       - media_volume:/app/media
       - ./resources/cert/fullchain.pem:/etc/letsencrypt/live/resdineconsulting.com/fullchain.pem
       - ./resources/cert/privkey.pem:/etc/letsencrypt/live/resdineconsulting.com/privkey.pem
-
+      - daphne_socket:/app/daphne_socket
     networks:
       - app_network
+    depends_on:
+      - daphne
+      - django_gunicorn
 
   redis:
     image: redis:7.0
@@ -78,5 +88,6 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
+  daphne_socket:
 
 
