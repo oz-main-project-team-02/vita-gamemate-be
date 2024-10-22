@@ -201,6 +201,9 @@ DATABASES = {
         "OPTIONS": {
             "client_encoding": "UTF8",  # UTF-8 문자셋 설정
         },
+        "TEST": {
+            "NAME": "test_postgres_new",
+        },
     }
 }
 
