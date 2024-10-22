@@ -30,10 +30,10 @@ class UserManager(BaseUserManager):
         try:
             return self.get(email=email, social_provider=social_provider)
         except self.model.DoesNotExist:
-            return UserNotFound()
+            raise UserNotFound()
 
     def get_user_by_nickname(self, user_nickname: str):
         try:
             return self.get(nickname=user_nickname)
         except self.model.DoesNotExist:
-            return UserNotFound()
+            raise UserNotFound()
