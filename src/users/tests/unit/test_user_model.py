@@ -8,6 +8,7 @@ class UserModelTestCase(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(email="google@google.com", social_provider="google")
         self.user2 = User.objects.create_user(email="kakao@kakao.com", social_provider="kakao")
+        self.user3 = User.objects.create_user(email="nickname@nickname.com", social_provider="kakao", nickname="test")
 
     def test_user_created_success(self) -> None:
         self.assertEqual(self.user.nickname, None)
@@ -61,3 +62,6 @@ class UserModelTestCase(TestCase):
     def test_user_creation_invalid_permission3(self) -> None:
         with self.assertRaises(ValidationError):
             User.objects.create_user(email="ggle@google.com", social_provider="google", is_superuser=True)
+
+    def test_user_return(self) -> None:
+        self.assertEqual(str(self.user3), "test")
