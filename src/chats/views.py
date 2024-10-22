@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.http import Http404, JsonResponse
-from rest_framework import generics, serializers, status
+from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.utils import timezone
 
 from users.exceptions import (
     InvalidAuthorizationHeader,
@@ -23,7 +24,7 @@ class ChatRoomCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ChatRoomSerializer
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
         
         authorization_header = self.request.headers.get("Authorization")
 
@@ -39,14 +40,16 @@ class ChatRoomCreateView(generics.CreateAPIView):
         other_user = User.objects.get(nickname=other_user_nickname)
         existing_chatroom = ChatRoom.objects.filter(main_user=main_user, other_user=other_user).first()
         if existing_chatroom:
+            existing_chatroom.updated_at = timezone.now()
+            existing_chatroom.save(update_fields=['updated_at'])
             serializer = self.get_serializer(existing_chatroom)
             response_data = serializer.data  
-            response_data["room_id"] = existing_chatroom.id
-            return Response(status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
 
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         chatroom = serializer.save(main_user=main_user, other_user=other_user)
         response_data = serializer.data
-        response_data["room_id"] = chatroom.id
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
