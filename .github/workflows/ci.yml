@@ -48,7 +48,7 @@ jobs:
 
       - name: Migrate Database
         run: |
-          python src/manage.py migrate --noinput
+          poetry run python src/manage.py migrate --noinput
 
       - name: Run black
         run: |
