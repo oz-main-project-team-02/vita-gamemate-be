@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.http import Http404, JsonResponse
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.utils import timezone
 
 from users.exceptions import (
     InvalidAuthorizationHeader,
@@ -13,8 +13,8 @@ from users.exceptions import (
     UserNotFound,
 )
 from users.managers import UserManager
-from users.services.user_service import UserService
 from users.models import User
+from users.services.user_service import UserService
 
 from .models import ChatRoom, Message
 from .serializers import ChatRoomSerializer, MessageSerializer
@@ -25,14 +25,14 @@ class ChatRoomCreateView(generics.CreateAPIView):
     serializer_class = ChatRoomSerializer
 
     def create(self, request, *args, **kwargs):
-        
+
         authorization_header = self.request.headers.get("Authorization")
 
         try:
             main_user = UserService.get_user_from_token(authorization_header)
         except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
             return Response({"message": str(e)}, status=e.status_code)
-        
+
         other_user_nickname = self.request.data.get("other_user_nickname")
         if not other_user_nickname:
             raise ValidationError("other_user_nickname 파라미터가 필요합니다.")
@@ -41,9 +41,9 @@ class ChatRoomCreateView(generics.CreateAPIView):
         existing_chatroom = ChatRoom.objects.filter(main_user=main_user, other_user=other_user).first()
         if existing_chatroom:
             existing_chatroom.updated_at = timezone.now()
-            existing_chatroom.save(update_fields=['updated_at'])
+            existing_chatroom.save(update_fields=["updated_at"])
             serializer = self.get_serializer(existing_chatroom)
-            response_data = serializer.data  
+            response_data = serializer.data
             return Response(response_data, status=status.HTTP_200_OK)
 
         serializer = self.get_serializer(data=request.data)
