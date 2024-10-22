@@ -44,7 +44,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-            poetry install --no-root
+          poetry install --no-root
+
+      - name: Migrate Database
+        run: |
+          python src/manage.py migrate --noinput
 
       - name: Run black
         run: |
