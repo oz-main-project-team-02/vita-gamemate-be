@@ -69,7 +69,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             raise ValidationError({"error": "올바른 소셩 제공자를 입력해주세요."})
 
         if self.gender and self.gender not in dict(Gender.choices):
-            raise ValidationError({"gender": "Invalid gender"})
+            raise ValidationError({"error": "올바른 성별을 입력해주세요."})
 
     def __str__(self) -> str:
         return self.nickname
