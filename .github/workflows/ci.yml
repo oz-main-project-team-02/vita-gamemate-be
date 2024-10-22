@@ -46,10 +46,6 @@ jobs:
         run: |
             poetry install --no-root
 
-      - name: Reset Database
-        run: |
-          python src/manage.py migrate --noinput
-
       - name: Run black
         run: |
           poetry run black . --check
