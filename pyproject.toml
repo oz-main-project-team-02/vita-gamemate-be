@@ -51,6 +51,7 @@ omit = [
   ".mypy_cache/**/*",
   "*/migrations/*",
   "*/*test*.py",
+  "manage.py",
 ]
 
 [tool.django-stubs]

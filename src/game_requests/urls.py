@@ -7,7 +7,7 @@ from game_requests.views.game_request_view import (
 )
 
 urlpatterns = [
-    path("<int:user_id>/", GameRequestCreateAPIView.as_view(), name="game-request"),
+    path("<int:user_id>/", GameRequestCreateAPIView.as_view(), name="game-request-create"),
     path("ordered/", GameRequestOrderedAPIView.as_view(), name="ordered-game-request"),
     path("received/", GameRequestReceivedAPIView.as_view(), name="received-game-request"),
 ]

@@ -3,21 +3,16 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-import games
 from games.models.game_model import Game
 from games.serializers.game_serializers import GameSerializer
 
 
 class GameListView(APIView):
     def get(self, request, *args, **kwargs):
-        try:
-            games = Game.objects.all()
-            serializer = GameSerializer(games, many=True)
+        games = Game.objects.all()
+        serializer = GameSerializer(games, many=True)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except (ValueError, ValidationError, TypeError) as e:
-            # 요청이 유효하지 않거나 데이터 조회에 실패한 경우
-            return Response({"error": "게임 조회에 실패하였습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GameDetailView(APIView):
