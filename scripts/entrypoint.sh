@@ -5,22 +5,16 @@
 source ~/.bashrc
 pyenv activate django_app
 
-cd src
+# 작업 디렉토리 이동
+cd /app/src
 
-## 데이터베이스 마이그레이션
-poetry run python manage.py migrate --no-input
-poetry run python manage.py collectstatic --no-input
-
-nginx
-
-# Gunicorn 실행
-exec poetry run gunicorn config.wsgi:application --bind 0.0.0.0:8000
-
-# Daphne 실행
-exec daphne -u /tmp/daphne.sock config.asgi:application
-
+# 데이터베이스 마이그레이션 (SKIP_MIGRATIONS 환경 변수에 따라 실행)
 if [ "$SKIP_MIGRATIONS" != "True" ]; then
-  python manage.py migrate
+  poetry run python manage.py migrate --no-input
 fi
 
+# 정적 파일 수집
+poetry run python manage.py collectstatic --no-input
+
+# 명령행 인자로 전달된 명령 실행
 exec "$@"

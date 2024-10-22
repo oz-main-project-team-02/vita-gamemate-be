@@ -27,8 +27,11 @@ import chats.routing  # 이제 이 코드는 안전하게 실행될 수 있음
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
-        "websocket": AuthMiddlewareStack(
-            AllowedHostsOriginValidator(URLRouter(chats.routing.websocket_urlpatterns)),
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(
+                URLRouter(chats.routing.websocket_urlpatterns)
+            )
         ),
     }
 )
+
