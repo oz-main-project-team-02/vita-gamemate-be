@@ -30,13 +30,10 @@ class UserService:
 
             user = User.objects.get_user_by_id(user_id)
 
-            if not user:
-                raise UserNotFound
-
             return user
 
         except UserNotFound:
             raise UserNotFound
 
-        except Exception as e:
-            raise APIException(str(e))
+        # except Exception as e:
+        #     raise APIException(str(e))
