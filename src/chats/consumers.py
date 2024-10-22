@@ -1,4 +1,4 @@
-from time import timezone
+from django.utils import timezone
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
@@ -86,10 +86,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def get_or_create_room(self, main_user_nickname, other_user_nickname):
-        # main_user, _ = User.objects.get_or_create(user_nickname=main_user_nickname)
-        # other_user, _ = User.objects.get_or_create(user_nickname=other_user_nickname)
-        main_user, _ = UserManager.get_user_by_nickname(main_user_nickname)
-        other_user, _ = UserManager.get_user_by_nickname(other_user_nickname)
+        main_user, _ = User.objects.get_or_create(nickname=main_user_nickname)
+        other_user, _ = User.objects.get_or_create(nickname=other_user_nickname)
 
         room, created = ChatRoom.objects.get_or_create(main_user=main_user, other_user=other_user)
         return room
@@ -111,3 +109,5 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     def check_room_exists(self, room_id):
         # 주어진 ID로 채팅방이 존재하는지 확인
         return ChatRoom.objects.filter(id=room_id).exists()
+
+
