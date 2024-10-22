@@ -78,7 +78,12 @@ class GoogleLoginCallbackAPIView(APIView):
     )
     def post(self, request):
         token_request_data = self.glc.create_token_request_data(code=request.data.get("code", None))
-        auth_headers = self.glc.get_auth_headers(token_request_data=token_request_data)
+
+        try:
+            auth_headers = self.glc.get_auth_headers(token_request_data=token_request_data)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         user_data = self.glc.get_user_info(auth_headers=auth_headers)
 
         email = user_data["email"]
@@ -87,9 +92,6 @@ class GoogleLoginCallbackAPIView(APIView):
 
         try:
             user = User.objects.get_user_by_email_and_social_provider(email=email, social_provider=social_provider)
-
-            if not user:
-                raise UserNotFound
 
         except UserNotFound:
             user = User.objects.create_user(email=email, nickname=nickname, social_provider=social_provider)
@@ -193,9 +195,6 @@ class KakaoLoginCallbackAPIView(APIView):
 
         try:
             user = User.objects.get_user_by_email_and_social_provider(email=email, social_provider=social_provider)
-
-            if not user:
-                raise UserNotFound
 
         except UserNotFound:
             user = User.objects.create_user(email=email, nickname=nickname, social_provider=social_provider)

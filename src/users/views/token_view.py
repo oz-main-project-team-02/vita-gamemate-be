@@ -13,7 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
-class CustomTokenRefreshView(APIView):
+class CustomTokenRefreshAPIView(APIView):
 
     @extend_schema(
         methods=["GET"],

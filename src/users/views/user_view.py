@@ -62,9 +62,6 @@ class UserProfileAPIView(APIView):
         try:
             user = User.objects.get_user_by_id(user_id)
 
-            if not user:
-                raise UserNotFound
-
         except UserNotFound:
             return Response({"error": "사용자를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
 

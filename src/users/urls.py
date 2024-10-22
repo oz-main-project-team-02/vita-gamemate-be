@@ -10,7 +10,7 @@ urlpatterns = [
     path("kakao/login/callback/", oauth_view.KakaoLoginCallbackAPIView.as_view(), name="kakao-login-callback"),
     path("auth/logout/", oauth_view.LogoutAPIView.as_view(), name="auth-logout"),
     # access token 발금
-    path("auth/accesstoken/", token_view.CustomTokenRefreshView.as_view(), name="auth-accesstoken"),
+    path("auth/accesstoken/", token_view.CustomTokenRefreshAPIView.as_view(), name="auth-accesstoken"),
     # 사용자 프로필
     path("<int:user_id>/profile/", user_view.UserProfileAPIView.as_view(), name="user-profile"),
     # 내 프로필
