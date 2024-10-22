@@ -1,4 +1,3 @@
-import unittest
 from unittest.mock import Mock, patch
 
 from django.test import TestCase
@@ -64,7 +63,7 @@ class UserServiceTest(TestCase):
     #         UserService.get_user_from_token(f"Bearer {self.valid_token}")
 
 
-class TestSocialLoginService(unittest.TestCase):
+class TestSocialLoginService(TestCase):
 
     def setUp(self):
         self.service = SocialLoginService()
@@ -90,7 +89,7 @@ class TestSocialLoginService(unittest.TestCase):
         self.assertEqual(result, expected_url)
 
 
-class TestSocialLoginCallbackService(unittest.TestCase):
+class TestSocialLoginCallbackService(TestCase):
 
     def setUp(self):
         self.service = SocialLoginCallbackService()
@@ -171,7 +170,3 @@ class TestSocialLoginCallbackService(unittest.TestCase):
 
         self.assertEqual(result, expected_user_info)
         mock_get.assert_called_once_with(self.service.profile_uri, headers=auth_headers)
-
-
-if __name__ == "__main__":
-    unittest.main()
