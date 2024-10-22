@@ -14,7 +14,7 @@ class UserManager(BaseUserManager):
         try:
             user.full_clean()
         except ValidationError as e:
-            raise ValueError(str(e))
+            raise ValidationError(e)
         user.save(using=self._db)
         return user
 
