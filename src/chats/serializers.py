@@ -59,7 +59,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         return obj.other_user.id
 
     def get_other_user_profile_image(self, obj):
-        return obj.other_user.profile_image if obj.other_user.profile_image else None
+        return obj.other_user.profile_image.url if obj.other_user.profile_image else None
 
     def get_updated_at(self, obj):
         return obj.updated_at
