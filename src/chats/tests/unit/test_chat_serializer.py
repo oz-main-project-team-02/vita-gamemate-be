@@ -53,7 +53,14 @@ class ChatRoomSerializerTest(TestCase):
 
         self.assertEqual(serializer.get_other_user_nickname(self.chat_room), self.other_user.nickname)
 
+<<<<<<<<< Temporary merge branch 1
+    def test_get_other_user_profile_image(self):
+        serializer = ChatRoomSerializer(self.chat_room)
+
+        self.assertEqual(serializer.get_other_user_profile_image(self.chat_room), self.other_user.profile_image.url)
+=========
     # def test_get_other_user_profile_image(self):
     #     serializer = ChatRoomSerializer(self.chat_room)
-
-    #     self.assertEqual(serializer.get_other_user_profile_image(self.chat_room), self.other_user.profile_image.url)
+    #
+    #     self.assertEqual(serializer.get_other_user_profile_image(self.chat_room), self.other_user.profile_image)
+>>>>>>>>> Temporary merge branch 2
