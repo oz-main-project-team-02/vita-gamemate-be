@@ -15,17 +15,10 @@ from users.services.user_service import UserService
 class StatusConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
-        headers = dict(self.scope["headers"])
-        authorization_header = headers.get(b"authorization")
-
-        if authorization_header:
-            authorization_header = authorization_header.decode("utf-8")
-
-        if not authorization_header:
-            await self.close()
+        access_token = self.scope["query_string"].decode("utf-8").split("token=")[-1]
 
         try:
-            self.user = await self.get_user_from_token(authorization_header)
+            self.user = await self.get_user_from_access_token(access_token)
 
             if not self.user.is_authenticated:
                 await self.close()
@@ -44,8 +37,8 @@ class StatusConsumer(AsyncWebsocketConsumer):
         await self.close()
 
     @sync_to_async
-    def get_user_from_token(self, token):
-        return UserService.get_user_from_token(token)
+    def get_user_from_access_token(self, access_token):
+        return UserService.get_user_from_access_token(access_token)
 
     @sync_to_async
     def update_user_status(self, user, status):

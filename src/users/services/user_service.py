@@ -35,5 +35,18 @@ class UserService:
         except UserNotFound:
             raise UserNotFound
 
+    @staticmethod
+    def get_user_from_access_token(access_token):
+        try:
+            token = AccessToken(access_token)
+            user_id = token.get("user_id")
+
+            user = User.objects.get_user_by_id(user_id)
+
+            return user
+
+        except UserNotFound:
+            raise UserNotFound
+
         # except Exception as e:
         #     raise APIException(str(e))
