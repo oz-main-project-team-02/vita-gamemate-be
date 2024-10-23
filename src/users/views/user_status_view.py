@@ -15,6 +15,7 @@ class UserStatusAPIView(APIView):
         is_online = redis_instance.get(f"user:{user_id}:is_online")
 
         if is_online:
-            return Response({"is_online": is_online.decode("utf-8")})
+            is_online = is_online.decode("utf-8").lower() == "true"
+            return Response({"is_online": is_online})
         else:
             return Response({"error": "사용자에게 is_online값이 없습니다."}, status=resp_status.HTTP_400_BAD_REQUEST)
