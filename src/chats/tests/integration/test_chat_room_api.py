@@ -45,7 +45,7 @@ class ChatRoomAPITest(APITestCase):
     def test_create_chat_room_missing_nickname(self):
         """
         views.py에 36번째 줄 에서의 raise ValidationError 작동 하지 않고
-        serializer에서 먼저 validation 진행하여 serializer에서 error raise 하는 듯 합니다!
+        IsAuthenticated에서 먼저 validation 진행하여 error raise 해서 테스트 코드로 테스트 못함
         """
         response = self.client.post(self.chat_room_create_url, {"other_user_nickname": ""})
 
