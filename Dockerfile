@@ -66,7 +66,7 @@ COPY resources/cert/fullchain.pem /etc/letsencrypt/live/resdineconsulting.com/fu
 COPY resources/cert/privkey.pem /etc/letsencrypt/live/resdineconsulting.com/privkey.pem
 
 RUN chmod +x /app/entrypoint.sh
-CMD ["/bin/bash", "/app/scripts/entrypoint.sh"]
+# CMD ["/bin/bash", "/app/scripts/entrypoint.sh"] # docker-compose.yml에서 command로 지정
 
 #RUN chmod +x /app/scripts/certbot.sh
 

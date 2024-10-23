@@ -3,6 +3,8 @@ from typing import Any
 from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
 
+from users.exceptions import UserNotFound
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email: str, social_provider: str, **extra_fields: Any):
@@ -14,7 +16,7 @@ class UserManager(BaseUserManager):
         try:
             user.full_clean()
         except ValidationError as e:
-            raise ValueError(str(e))
+            raise ValidationError(e)
         user.save(using=self._db)
         return user
 
@@ -22,16 +24,16 @@ class UserManager(BaseUserManager):
         try:
             return self.get(id=user_id)
         except self.model.DoesNotExist:
-            return None
+            raise UserNotFound()
 
     def get_user_by_email_and_social_provider(self, email: str, social_provider: str):
         try:
             return self.get(email=email, social_provider=social_provider)
         except self.model.DoesNotExist:
-            return None
+            raise UserNotFound()
 
     def get_user_by_nickname(self, user_nickname: str):
         try:
             return self.get(nickname=user_nickname)
         except self.model.DoesNotExist:
-            return None
+            raise UserNotFound()

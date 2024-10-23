@@ -50,11 +50,26 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def clean(self) -> None:
         super().clean()
+        if "is_superuser" in self.__dict__ and self.is_superuser:
+            raise ValidationError({"error": "어드민으로 생성할 수 없습니다."})
+
+        if "is_staff" in self.__dict__ and self.is_staff:
+            raise ValidationError({"error": "관리자로 생성할 수 없습니다."})
+
+        if "is_active" in self.__dict__ and not self.is_active:
+            raise ValidationError({"error": "사용자의 상태를 변경할 수 없습니다."})
+
+        if "is_mate" in self.__dict__ and self.is_mate:
+            raise ValidationError({"error": "사용자를 mate로 변경할 수 없습니다."})
+
+        if "is_online" in self.__dict__ and not self.is_online:
+            raise ValidationError({"error": "사용자의 현재 상태를 변경할 수 없습니다."})
+
         if self.social_provider and self.social_provider not in dict(SocialProvider.choices):
-            raise ValidationError({"social_provider": "Invalid social provider"})
+            raise ValidationError({"error": "올바른 소셩 제공자를 입력해주세요."})
 
         if self.gender and self.gender not in dict(Gender.choices):
-            raise ValidationError({"gender": "Invalid gender"})
+            raise ValidationError({"error": "올바른 성별을 입력해주세요."})
 
     def __str__(self) -> str:
         return self.nickname
