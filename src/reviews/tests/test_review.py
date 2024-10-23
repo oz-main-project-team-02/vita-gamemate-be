@@ -4,6 +4,7 @@ from rest_framework import status
 
 from game_requests.models import GameRequest
 from games.models import Game
+from mates.models import MateGameInfo
 from reviews.models import Review
 from users.models import User
 
@@ -11,12 +12,28 @@ from users.models import User
 class ReviewAPITestCase(TestCase):
 
     def setUp(self):
-        # 테스트에 필요한 유저, 게임, 게임 의뢰, 리뷰 생성
-        self.user = User.objects.create_user(email="user1@example.com", password="password123", nickname="User1", social_provider="google")
-        self.mate = User.objects.create_user(email="mate1@example.com", password="password123", nickname="Mate1", social_provider="google")
-        self.game = Game.objects.create(name="리그 오브 레전드", image="image1.jpg")
-
-        # GameRequest 생성 (user와 mate 객체를 직접 전달)
+        self.user = User.objects.create_user(
+            nickname="사용자임",
+            email="user1@example.com",
+            gender="male",
+            social_provider="google",
+        )
+        self.mate = User.objects.create_user(
+            nickname="mate임",
+            email="user2@example.com",
+            gender="female",
+            social_provider="google",
+        )
+        self.game = Game.objects.get(
+            name="lol",
+        )
+        MateGameInfo.objects.create(
+            user_id=self.mate.id,
+            game=self.game,
+            description="gg",
+            level="챌린저",
+            request_price=1000,
+        )
         self.game_request = GameRequest.objects.create(user_id=self.user.id, mate_id=self.mate.id, game=self.game, price=500, amount=1)
 
         # 리뷰 생성
