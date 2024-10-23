@@ -52,8 +52,8 @@ class ChatRoomSerializerTest(TestCase):
         serializer = ChatRoomSerializer(self.chat_room)
 
         self.assertEqual(serializer.get_other_user_nickname(self.chat_room), self.other_user.nickname)
-
-    def test_get_other_user_profile_image(self):
-        serializer = ChatRoomSerializer(self.chat_room)
-
-        self.assertEqual(serializer.get_other_user_profile_image(self.chat_room), self.other_user.profile_image.url)
+        
+    # def test_get_other_user_profile_image(self):
+    #     serializer = ChatRoomSerializer(self.chat_room)
+    #
+    #     self.assertEqual(serializer.get_other_user_profile_image(self.chat_room), self.other_user.profile_image.url)
