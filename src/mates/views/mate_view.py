@@ -66,7 +66,8 @@ class MateGameInfoListView(generics.ListAPIView):
         level = self.request.query_params.get("level")
 
         if level:
-            queryset = queryset.filter(mategameinfo__level=level)
+            level_list = level.split(",")
+            queryset = queryset.filter(mategameinfo__level__in=level_list)
 
         # 정렬 처리
         sort = self.request.query_params.get("sort")
