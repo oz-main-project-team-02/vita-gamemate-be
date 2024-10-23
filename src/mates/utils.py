@@ -49,3 +49,7 @@ from rest_framework.pagination import PageNumberPagination
 
 class MateGameInfoPagination(PageNumberPagination):
     page_size = 30
+
+
+class MateSearchPagination(PageNumberPagination):
+    page_size = 20
