@@ -25,7 +25,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
             "id",
             "main_user_nickname",
             "other_user_nickname",
-            "other_user_id"
+            "other_user_id",
             "other_user_profile_image",
             "latest_message",
             "latest_message_time",
@@ -54,7 +54,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
     # other_user의 닉네임을 반환하는 메소드
     def get_other_user_nickname(self, obj):
         return obj.other_user.nickname
-    
+
     def get_other_user_id(self, obj):
         return obj.other_user.id
 
