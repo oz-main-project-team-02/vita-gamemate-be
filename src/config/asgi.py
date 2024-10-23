@@ -23,10 +23,15 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 
 import chats.routing  # 이제 이 코드는 안전하게 실행될 수 있음
+from users.urls import user_status_urlpatterns
 
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
-        "websocket": AllowedHostsOriginValidator(AuthMiddlewareStack(URLRouter(chats.routing.websocket_urlpatterns))),
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(
+                URLRouter(chats.routing.websocket_urlpatterns + user_status_urlpatterns),
+            )
+        ),
     }
 )
