@@ -1,6 +1,5 @@
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.utils import timezone
 from django_redis import get_redis_connection
 
 from users.exceptions import (
@@ -15,6 +14,8 @@ from users.services.user_service import UserService
 class StatusConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
+        self.redis_instance = await sync_to_async(get_redis_connection)("default")
+
         access_token = self.scope["query_string"].decode("utf-8").split("token=")[-1]
 
         try:
@@ -32,7 +33,7 @@ class StatusConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, "user") and self.user.is_authenticated:
-            await self.update_user_status(self.user, False)
+            await self.delete_user_status(self.user)
 
         await self.close()
 
@@ -42,6 +43,8 @@ class StatusConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def update_user_status(self, user, status):
-        redis_instance = get_redis_connection("default")
+        self.redis_instance.set(f"user:{user.id}:is_online", str(status))
 
-        redis_instance.set(f"user:{user.id}:is_online", str(status))
+    @sync_to_async
+    def delete_user_status(self, user):
+        self.redis_instance.delete(f"user:{user.id}:is_online")
