@@ -26,7 +26,6 @@ class ReviewListViewTest(TestCase):
         self.game_request.title = "게임 목록 조회"
 
         Review.objects.create(game_request=self.game_request, rating=5.0, content="와 진짜 재밌다", created_at="2024-10-17T15:35:42Z")
-
         Review.objects.create(game_request=self.game_request, rating=1.0, content="와 진짜 노잼", created_at="2024-10-17T15:35:42Z")
 
     def test_review_list_view(self):
@@ -40,18 +39,6 @@ class ReviewListViewTest(TestCase):
         self.assertEqual(len(response.data["results"]), 2)  # 데이터베이스에 2개의 리뷰가 있으므로
         self.assertEqual(response.data["results"][0]["content"], "와 진짜 노잼")  # 최신 리뷰가 첫 번째로 와야 함
         self.assertEqual(response.data["results"][1]["content"], "와 진짜 재밌다")
-
-    def test_review_creation(self):
-        # 새로운 리뷰 생성 테스트
-        data = {"game_request": self.game_request.id, "rating": 5.0, "content": "와 진짜 재밌다"}  # 생성한 GameRequest의 ID 사용
-        url = reverse("reviews")
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(Review.objects.count(), 3)
-        self.assertEqual(response.data["game_request"], self.game_request.id)
-        self.assertEqual(response.data["rating"], data["rating"])
-        self.assertEqual(response.data["content"], data["content"])
-
 
 class GameReviewCreateAPIViewTest(APITestCase):
 
