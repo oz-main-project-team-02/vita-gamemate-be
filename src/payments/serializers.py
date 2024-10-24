@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import Payment
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     payment_key = serializers.CharField(max_length=255)
@@ -8,4 +10,4 @@ class PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = ['payment_key', 'order_id', 'amount']
+        fields = ["payment_key", "order_id", "amount"]

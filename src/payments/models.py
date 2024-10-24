@@ -3,6 +3,7 @@ from django.db import models
 
 User = get_user_model()
 
+
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     payment_key = models.CharField(max_length=255)
