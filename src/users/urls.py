@@ -17,7 +17,7 @@ urlpatterns = [
     # 내 프로필
     path("profile/me/", user_view.UserMeAPIView.as_view(), name="user-me"),
     # 사용자 상태 확인
-    path("status/", user_status_view.UserStatusAPIView.as_view(), name="user-status"),
+    # path("status/", user_status_view.UserStatusAPIView.as_view(), name="user-status"),
 ]
 
 user_status_urlpatterns = [
