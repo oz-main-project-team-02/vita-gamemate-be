@@ -1,3 +1,4 @@
+from django.db.models import F
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -43,15 +44,14 @@ class WalletBalanceView(APIView):
 
         try:
             user = UserService.get_user_from_token(authorization_header)
-
         except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
             return Response({"message": str(e)}, status=e.status_code)
 
-        try:
-            wallet = Wallet.objects.get(user_id=user.id)
-            return Response({"user_id": user.id, "coin": wallet.coin}, status=status.HTTP_200_OK)
-        except Wallet.DoesNotExist:
+        wallet = Wallet.objects.filter(user_id=user.id).first()
+        if not wallet:
             return Response({"error": "지갑을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"user_id": user.id, "coin": wallet.coin}, status=status.HTTP_200_OK)
 
 
 class WalletRechargeView(APIView):
@@ -60,11 +60,8 @@ class WalletRechargeView(APIView):
 
     @extend_schema(
         summary="지갑 코인 충전",
-        description="사용자의 지갑에 코인을 충전하는 API입니다. 쿼리 파라미터로 충전할 코인 수를 전달해야 합니다.",
-        parameters=[
-            OpenApiParameter(name="coin", description="충전할 코인 수", required=True, type=int, location=OpenApiParameter.QUERY),
-            OpenApiParameter(name="user_id", description="사용자 ID (유저 PK)", required=True, type=int, location=OpenApiParameter.PATH),
-        ],
+        description="사용자의 지갑에 코인을 충전하는 API입니다. 요청 body에 충전할 코인 수를 전달해야 합니다.",
+        request=WalletRechargeSerializer,
         responses={
             200: OpenApiResponse(
                 response={
@@ -87,7 +84,6 @@ class WalletRechargeView(APIView):
 
         try:
             user = UserService.get_user_from_token(authorization_header)
-
         except (MissingAuthorizationHeader, InvalidAuthorizationHeader, TokenMissing, UserNotFound) as e:
             return Response({"message": str(e)}, status=e.status_code)
 
@@ -95,12 +91,15 @@ class WalletRechargeView(APIView):
         serializer.is_valid(raise_exception=True)
         coin_amount = serializer.validated_data["coin"]
 
-        try:
-            wallet = Wallet.objects.get(user_id=user.id)
-        except Wallet.DoesNotExist:
+        wallet = Wallet.objects.filter(user_id=user.id).first()
+        if not wallet:
             return Response({"error": "지갑을 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
 
-        wallet.coin += coin_amount
+        # F expression을 사용하여 동시성 문제 해결
+        wallet.coin = F("coin") + coin_amount
         wallet.save()
+
+        # 다시 데이터베이스에서 값 가져오기
+        wallet.refresh_from_db()
 
         return Response({"message": "코인이 성공적으로 충전되었습니다.", "coin": wallet.coin}, status=status.HTTP_200_OK)
