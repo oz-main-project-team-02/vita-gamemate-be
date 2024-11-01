@@ -11,19 +11,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     author_nickname = serializers.CharField(source="game_request.user.nickname", read_only=True)
     mate_nickname = serializers.CharField(source="game_request.mate.nickname", read_only=True)
 
-
     class Meta:
         model = Review
-        fields = [
-            "game_request_id",
-            "game_id",
-            "author_id",
-            "author_nickname",
-            "mate_nickname",
-            "rating",
-            "content",
-            "created_at"
-        ]
+        fields = ["game_request_id", "game_id", "author_id", "author_nickname", "mate_nickname", "rating", "content", "created_at"]
 
     def get_author_id(self, obj):
         return obj.game_request.user.id if obj.game_request and obj.game_request.user else None
