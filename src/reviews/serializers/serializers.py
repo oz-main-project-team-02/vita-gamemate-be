@@ -6,10 +6,11 @@ from reviews.models import Review
 
 class ReviewSerializer(serializers.ModelSerializer):
     game_request_id = serializers.IntegerField(source="game_request.id", read_only=True)
+    game_id = serializers.IntegerField(source="game_request.game.id", read_only=True)
     author_id = serializers.SerializerMethodField()
     author_nickname = serializers.CharField(source="game_request.user.nickname", read_only=True)
     mate_nickname = serializers.CharField(source="game_request.mate.nickname", read_only=True)
-    game_id = serializers.IntegerField(source="game_request.game.id", read_only=True)
+
 
     class Meta:
         model = Review
